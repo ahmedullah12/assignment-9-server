@@ -1,12 +1,31 @@
 import { Router } from "express";
 import { ShopController } from "./shop.controller";
+import auth from "../../middlewares/auth";
+import { UserRole } from "@prisma/client";
+import { multerUpload } from "../../../config/multer.config";
+import { parseBody } from "../../middlewares/bodyParser";
+import { validateRequest } from "../../middlewares/validateRequest";
+import { ShopValidations } from "./shop.validations";
 
 const router = Router();
 
-router.post("/create-shop", ShopController.createShop);
+router.post(
+  "/create-shop",
+  auth(UserRole.VENDOR),
+  multerUpload.single("logo"),
+  parseBody,
+  validateRequest(ShopValidations.createShopValidationSchema),
+  ShopController.createShop
+);
 router.get("/", ShopController.getAllShop);
 router.get("/:shopId", ShopController.getSingleShop);
-router.put("/:shopId", ShopController.updateShop);
+router.put(
+  "/",
+  auth(UserRole.VENDOR),
+  multerUpload.single("logo"),
+  parseBody,
+  ShopController.updateShop
+);
 router.delete("/:shopId", ShopController.deleteShop);
 
 export const ShopRoutes = router;

@@ -3,7 +3,7 @@ import sendResponse from "../../../shared/sendResponse";
 import { ShopServices } from "./shop.service";
 
 const createShop = catchAsync(async (req, res) => {
-  const result = await ShopServices.createShop(req.body);
+  const result = await ShopServices.createShop(req.user, req.body, req.file);
 
   sendResponse(res, {
     statusCode: 200,
@@ -38,9 +38,8 @@ const getSingleShop = catchAsync(async (req, res) => {
 });
 
 const updateShop = catchAsync(async (req, res) => {
-  const { shopId } = req.params;
 
-  const result = await ShopServices.updateShop(shopId, req.body);
+  const result = await ShopServices.updateShop(req.user, req.body, req.file);
 
   sendResponse(res, {
     statusCode: 200,
