@@ -1,7 +1,7 @@
 import { Shop, ShopStatus, UserStatus } from "@prisma/client";
 import prisma from "../../../shared/prisma"
 
-const createShop = async(payload: any) => {
+const createShop = async(payload: ICreateShop) => {
     const isShopNameExists = await prisma.shop.findUnique({
         where: {
             name: payload.name,

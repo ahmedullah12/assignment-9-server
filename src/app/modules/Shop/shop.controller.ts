@@ -12,6 +12,7 @@ const createShop = catchAsync(async (req, res) => {
     data: result,
   });
 });
+
 const getAllShop = catchAsync(async (req, res) => {
   const result = await ShopServices.getAllShop();
 
