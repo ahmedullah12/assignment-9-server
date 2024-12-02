@@ -5,9 +5,24 @@ import { generateJwtToken } from "../../../helpers/jwtHelpers";
 import { Secret } from "jsonwebtoken";
 import prisma from "../../../shared/prisma";
 import { UserStatus } from "@prisma/client";
+import { ISignUpPayload } from "./auth.interface";
 
 const signUp = async (req: Request) => {
-  const userData = req.body;
+  const userData: ISignUpPayload = req.body;
+
+  const isUserExists = await prisma.user.findUnique({
+    where: {
+      email: userData.email,
+    }
+  })
+
+  if(isUserExists){
+    throw new Error("User already exists!!")
+  }
+
+  if(req.file){
+    userData.profileImage = req?.file.path;
+  }
 
   const hashedPassword = await bcrypt.hash(
     userData.password,
@@ -43,7 +58,6 @@ const signUp = async (req: Request) => {
 };
 
 const login = async (payload: { email: string; password: string }) => {
-    console.log(payload);
   const userData = await prisma.user.findUniqueOrThrow({
     where: {
       email: payload.email,
