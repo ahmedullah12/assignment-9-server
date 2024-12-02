@@ -65,12 +65,12 @@ const login = async (payload: { email: string; password: string }) => {
     },
   });
 
-  const isCorrectPassword = await bcrypt.compare(
+  const isPasswordCorrect = await bcrypt.compare(
     payload.password,
     userData.password
   );
 
-  if (!isCorrectPassword) {
+  if (!isPasswordCorrect) {
     throw new Error("Password incorrect!");
   }
 
