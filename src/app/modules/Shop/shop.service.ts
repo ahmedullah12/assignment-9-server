@@ -4,6 +4,7 @@ import { JwtPayload } from "jsonwebtoken";
 import AppError from "../../errors/AppError";
 import httpStatus from "http-status";
 import { IFile } from "../../interfaces/file";
+import { ICreateShop, IUpdateShop } from "./shop.interface";
 
 const createShop = async (
   user: JwtPayload,

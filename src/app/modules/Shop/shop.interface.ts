@@ -1,10 +1,13 @@
-interface ICreateShop {
+import { ShopStatus } from "@prisma/client";
+
+export interface ICreateShop {
     name: string;
     description: string;
 }
 
-interface IUpdateShop {
+export interface IUpdateShop {
     name?: string;
     description?: string;
     logoUrl?: string;
+    status?: ShopStatus;
 }

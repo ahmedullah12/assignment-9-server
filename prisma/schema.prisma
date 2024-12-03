@@ -24,18 +24,56 @@ model User {
 }
 
 model Shop {
-  id              String     @id @default(uuid())
-  name            String     @unique
-  vendorId        String     @unique
-  logoUrl         String
-  description     String
-  status          ShopStatus @default(ACTIVE)
-  createdAt       DateTime   @default(now())
-  updatedAt       DateTime   @updatedAt
+  id          String     @id @default(uuid())
+  name        String     @unique
+  vendorId    String     @unique
+  logoUrl     String
+  description String
+  status      ShopStatus @default(ACTIVE)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
 
-  vendor User @relation(fields: [vendorId], references: [id])
+  vendor   User      @relation(fields: [vendorId], references: [id])
+  products Product[]
 
   @@map("shops")
+}
+
+model Category {
+  id              String            @id @default(uuid())
+  name            String            @unique
+  productCategory ProductCategory[]
+
+  @@map("categories")
+}
+
+model Product {
+  id             String   @id @default(uuid())
+  name           String
+  price          Float
+  category       String
+  inventoryCount Int      @default(0)
+  description    String
+  images         String[]
+  shopId         String
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  shop            Shop              @relation(fields: [shopId], references: [id])
+  productCategory ProductCategory[]
+
+  @@map("products")
+}
+
+model ProductCategory {
+  productId  String
+  categoryId String
+
+  product  Product  @relation(fields: [productId], references: [id])
+  category Category @relation(fields: [categoryId], references: [id])
+
+  @@id([productId, categoryId])
+  @@map("product_categories")
 }
 
 enum UserRole {

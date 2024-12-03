@@ -17,8 +17,12 @@ router.post(
   validateRequest(ShopValidations.createShopValidationSchema),
   ShopController.createShop
 );
-router.get("/", ShopController.getAllShop);
-router.get("/:shopId", ShopController.getSingleShop);
+router.get("/", auth(UserRole.ADMIN), ShopController.getAllShop);
+router.get(
+  "/:shopId",
+  auth(UserRole.ADMIN, UserRole.VENDOR),
+  ShopController.getSingleShop
+);
 router.put(
   "/",
   auth(UserRole.VENDOR),
