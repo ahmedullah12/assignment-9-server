@@ -51,7 +51,6 @@ model Product {
   id             String   @id @default(uuid())
   name           String
   price          Float
-  category       String
   inventoryCount Int      @default(0)
   description    String
   images         String[]
