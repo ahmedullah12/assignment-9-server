@@ -19,7 +19,12 @@ router.post(
 );
 router.get("/", ProductController.getAllProduct);
 router.get("/:id", ProductController.getSingleProduct);
-router.put("/:id", ProductController.updateProduct);
+router.put(
+  "/:id",
+  auth(UserRole.VENDOR),
+  validateRequest(ProductValidations.updateProductValidationSchema),
+  ProductController.updateProduct
+);
 router.delete("/:id", ProductController.deleteProduct);
 
 export const ProductRoutes = router;

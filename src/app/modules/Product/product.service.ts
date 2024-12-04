@@ -8,7 +8,7 @@ import { IFile } from "../../interfaces/file";
 const createProduct = async (req: Request) => {
   const files = req.files as IFile[];
   const { name, price, inventoryCount, description, categories } =
-    req.body as ICreateProductPayload;
+    req.body as IProductPayload;
   const user = req.user;
 
   //check if the user exists and is vendor or not
@@ -78,15 +78,34 @@ const getAllProduct = async () => {
 };
 
 const getSingleProduct = async (id: string) => {
-  console.log(id);
+  const result = await prisma.product.findUniqueOrThrow({
+    where: {
+        id
+    }
+  });
+
+  return result;
 };
 
-const updateProduct = async (id: string, payload: any) => {
-  console.log(id, payload);
+const updateProduct = async (id: string, payload: Partial<IProductPayload>) => {
+  const result = await prisma.product.update({
+    where: {
+        id,
+    },
+    data: payload
+  });
+
+  return result;
 };
 
 const deleteProduct = async (id: string) => {
-  console.log(id);
+  const result = await prisma.product.delete({
+    where: {
+        id,
+    }
+  });
+
+  return result;
 };
 
 export const ProductServices = {

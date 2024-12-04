@@ -1,4 +1,4 @@
-interface ICreateProductPayload {
+interface IProductPayload {
   name: string;
   price: number;
   inventoryCount: number;
