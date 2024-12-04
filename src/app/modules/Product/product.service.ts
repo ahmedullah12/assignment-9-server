@@ -1,9 +1,12 @@
 import { Request } from "express";
 import prisma from "../../../shared/prisma";
-import { UserRole, UserStatus } from "@prisma/client";
+import { Prisma, UserRole, UserStatus } from "@prisma/client";
 import AppError from "../../errors/AppError";
 import httpStatus from "http-status";
 import { IFile } from "../../interfaces/file";
+import { paginationHelper } from "../../../helpers/paginationHelper";
+import { IPaginationOptions } from "../../interfaces/pagination";
+import { productSearchAbleFields } from "./product.constant";
 
 const createProduct = async (req: Request) => {
   const files = req.files as IFile[];
@@ -66,13 +69,77 @@ const createProduct = async (req: Request) => {
   return result;
 };
 
-const getAllProduct = async () => {
-  const result = await prisma.product.findMany({
-    include: {
-        shop: true,
-        productCategory: true
+const getAllProduct = async (params: Record<string, unknown>, options: IPaginationOptions) => {
+  const { page, limit, skip } = paginationHelper.calculatePagination(options);
+  const { searchTerm,price, ...filterData } = params;
+
+  const andConditions: Prisma.ProductWhereInput[] = [];
+
+  //filter for search
+  if (params.searchTerm) {
+    andConditions.push({
+          OR: productSearchAbleFields.map(field => ({
+              [field]: {
+                  contains: params.searchTerm,
+                  mode: 'insensitive'
+              }
+          }))
+      })
+  };
+
+  // filter for price range
+  if (price) {
+    const [minPrice, maxPrice] = (price as string).split('-').map(Number);
+    if (!isNaN(minPrice) && !isNaN(maxPrice)) {
+      andConditions.push({
+        price: {
+          gte: minPrice,
+          lte: maxPrice,
+        },
+      });
     }
-  });
+  }
+
+  // adding other filters
+  if (Object.keys(filterData).length > 0) {
+    andConditions.push({
+          AND: Object.keys(filterData).map(key => ({
+              [key]: {
+                  equals: (filterData as any)[key]
+              }
+          }))
+      })
+  };
+
+  const whereConditions: Prisma.ProductWhereInput = andConditions.length > 0 ? { AND: andConditions } : {};
+
+  const result = await prisma.product.findMany({
+    where: whereConditions,
+    skip,
+    take: limit,
+    orderBy: options.sortBy && options.sortOrder ? {
+        [options.sortBy]: options.sortOrder
+    } : {
+        createdAt: 'desc'
+    },
+    select: {
+      shop: true,
+      productCategory: true
+    }
+});
+
+const total = await prisma.product.count({
+    where: whereConditions
+});
+
+return {
+    meta: {
+        page,
+        limit,
+        total
+    },
+    data: result
+};
 
   return result;
 };

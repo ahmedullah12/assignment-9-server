@@ -2,6 +2,8 @@ import httpStatus from "http-status";
 import catchAsync from "../../../shared/catchAsync";
 import sendResponse from "../../../shared/sendResponse";
 import { ProductServices } from "./product.service";
+import pick from "../../../shared/pick";
+import { productFilterableFields } from "./product.constant";
 
 const createProduct = catchAsync(async (req, res) => {
   const result = await ProductServices.createProduct(req);
@@ -15,7 +17,10 @@ const createProduct = catchAsync(async (req, res) => {
 });
 
 const getAllProduct = catchAsync(async (req, res) => {
-  const result = await ProductServices.getAllProduct();
+  const filters = pick(req.query, productFilterableFields);
+  const options = pick(req.query, ["limit", "page", "sortBy", "sortOrder"]);
+
+  const result = await ProductServices.getAllProduct(filters, options);
 
   sendResponse(res, {
     statusCode: httpStatus.OK,
@@ -62,9 +67,9 @@ const deleteProduct = catchAsync(async (req, res) => {
 });
 
 export const ProductController = {
-    createProduct,
-    getAllProduct,
-    getSingleProduct,
-    updateProduct,
-    deleteProduct
-}
+  createProduct,
+  getAllProduct,
+  getSingleProduct,
+  updateProduct,
+  deleteProduct,
+};
