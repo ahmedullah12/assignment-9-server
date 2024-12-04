@@ -3,7 +3,6 @@ import prisma from "../../../shared/prisma"
 import AppError from "../../errors/AppError";
 
 const createCategory = async(payload: {name: string}) => {
-    console.log(payload);
     const isCategoryNameExists = await prisma.category.findUnique({
         where: {
             name: payload.name
