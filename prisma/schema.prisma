@@ -18,8 +18,9 @@ model User {
   status        UserStatus @default(ACTIVE)
   createdAt     DateTime   @default(now())
   updatedAt     DateTime   @updatedAt
-  
-  shop          Shop?
+
+  shop       Shop?
+  followShop FollowShop[]
 
   @@map("users")
 }
@@ -34,10 +35,22 @@ model Shop {
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
 
-  vendor   User      @relation(fields: [vendorId], references: [id])
-  products Product[]
+  vendor     User         @relation(fields: [vendorId], references: [id])
+  products   Product[]
+  followShop FollowShop[]
 
   @@map("shops")
+}
+
+model FollowShop {
+  userId String
+  shopId String
+
+  user User @relation(fields: [userId], references: [id])
+  shop Shop @relation(fields: [shopId], references: [id])
+
+  @@id([userId, shopId])
+  @@map("follow_shops")
 }
 
 model Category {

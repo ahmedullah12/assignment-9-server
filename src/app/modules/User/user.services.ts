@@ -1,5 +1,8 @@
 import { UserStatus } from "@prisma/client";
 import prisma from "../../../shared/prisma";
+import { JwtPayload } from "jsonwebtoken";
+import AppError from "../../errors/AppError";
+import httpStatus from "http-status";
 
 const getAllUsers = async () => {
   const result = await prisma.user.findMany();
@@ -66,6 +69,46 @@ const suspendUser = async (id: string) => {
   return result;
 };
 
+const followShop = async (user: JwtPayload, shopId: string) => {
+  const userData = await prisma.user.findUniqueOrThrow({
+    where: {
+      email: user.email
+    }
+  })
+
+  // check if the shop exists
+  const shop = await prisma.shop.findUnique({
+    where: { id: shopId },
+  });
+
+  if (!shop) {
+    throw new AppError(httpStatus.NOT_FOUND, "Shop not found");
+  }
+
+  // Check if the user already follows the shop
+  const existingFollow = await prisma.followShop.findUnique({
+    where: {
+      userId_shopId: { userId: userData.id, shopId }, // Composite primary key
+    },
+  });
+
+  if (existingFollow) {
+    // Unfollow the shop
+    await prisma.followShop.delete({
+      where: {
+        userId_shopId: { userId: userData.id, shopId },
+      },
+    });
+    return { message: "Shop unfollowed successfully", followed: false };
+  } else {
+    // Follow the shop
+    await prisma.followShop.create({
+      data: { userId: userData.id, shopId },
+    });
+    return { message: "Shop followed successfully", followed: true };
+  }
+};
+
 export const UserServices = {
     getAllUsers,
     getUserWithEmail,
@@ -73,4 +116,5 @@ export const UserServices = {
     updateUser,
     deleteUser,
     suspendUser,
+    followShop
 }

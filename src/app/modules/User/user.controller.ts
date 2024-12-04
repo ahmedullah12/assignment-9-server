@@ -63,10 +63,36 @@ const deleteUser = catchAsync(async (req, res) => {
   });
 });
 
+const suspendUser = catchAsync(async (req, res) => {
+  const { id } = req.params;
+  const result = await UserServices.suspendUser(id);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "User suspended successfully!!",
+    data: result,
+  });
+});
+
+const followShop = catchAsync(async (req, res) => {
+  const { shopId } = req.params;
+  const result = await UserServices.followShop(req.user, shopId);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: result.message,
+    data: result
+  });
+});
+
 export const UserController = {
   getAllUsers,
   getUserWithEmail,
   getUserWithId,
   updateUser,
   deleteUser,
+  suspendUser,
+  followShop
 };
