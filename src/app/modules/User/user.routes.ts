@@ -8,8 +8,8 @@ import { UserValidations } from "./user.validations";
 const router = Router();
 
 router.get("/", auth(UserRole.ADMIN), UserController.getAllUsers);
-router.get("/user-email", UserController.getAllUsers);
-router.get("/:id", UserController.getAllUsers);
+router.get("/user-email", UserController.getUserWithEmail);
+router.get("/:id", UserController.getUserWithId);
 router.put(
   "/:id",
   validateRequest(UserValidations.updateUserValidationsSchema),

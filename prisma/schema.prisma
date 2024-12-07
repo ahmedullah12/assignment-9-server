@@ -67,6 +67,9 @@ model Product {
   name           String
   price          Float
   inventoryCount Int      @default(0)
+  isFlashSale    Boolean  @default(false)
+  discount       Float?
+  flashSalePrice Float?
   description    String
   images         String[]
   shopId         String

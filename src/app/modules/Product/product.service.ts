@@ -10,7 +10,7 @@ import { productSearchAbleFields } from "./product.constant";
 
 const createProduct = async (req: Request) => {
   const files = req.files as IFile[];
-  const { name, price, inventoryCount, description, categories } =
+  const { name, price, inventoryCount, description, categories, isFlashSale, discount } =
     req.body as IProductPayload;
   const user = req.user;
 
@@ -38,6 +38,11 @@ const createProduct = async (req: Request) => {
     throw new AppError(httpStatus.BAD_REQUEST, "At least one product image is required.");
   }
 
+  let flashSalePrice = null;
+  if (isFlashSale && discount) {
+    flashSalePrice = price - price * (discount / 100);
+  }
+
   const payloadData = {
     name,
     price,
@@ -45,6 +50,9 @@ const createProduct = async (req: Request) => {
     description,
     images,
     shopId: userData.shop.id,
+    isFlashSale: !!isFlashSale,
+    discount: isFlashSale ? discount : null,
+    flashSalePrice,
   };
 
   const result = await prisma.$transaction(async (transactionClient) => {
@@ -144,6 +152,16 @@ return {
   return result;
 };
 
+const getFlashSaleProducts = async() => {
+  const result = await prisma.product.findMany({
+    where: {
+      isFlashSale: true
+    }
+  });
+
+  return result;
+}
+
 const getSingleProduct = async (id: string) => {
   const result = await prisma.product.findUniqueOrThrow({
     where: {
@@ -178,6 +196,7 @@ const deleteProduct = async (id: string) => {
 export const ProductServices = {
   createProduct,
   getAllProduct,
+  getFlashSaleProducts,
   getSingleProduct,
   updateProduct,
   deleteProduct,

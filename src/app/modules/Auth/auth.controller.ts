@@ -1,7 +1,6 @@
 import httpStatus from "http-status";
 import catchAsync from "../../../shared/catchAsync";
 import sendResponse from "../../../shared/sendResponse";
-import AppError from "../../errors/AppError";
 import { AuthServices } from "./auth.service";
 
 const signUp = catchAsync(async (req, res) => {
@@ -12,6 +11,7 @@ const signUp = catchAsync(async (req, res) => {
   res.cookie("refreshToken", refreshToken, {
     secure: false,
     httpOnly: true,
+    sameSite: "lax"
   });
 
   sendResponse(res, {

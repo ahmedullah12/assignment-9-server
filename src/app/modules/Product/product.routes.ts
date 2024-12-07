@@ -18,6 +18,7 @@ router.post(
   ProductController.createProduct
 );
 router.get("/", ProductController.getAllProduct);
+router.get("/flash-sale", ProductController.getFlashSaleProducts);
 router.get("/:id", ProductController.getSingleProduct);
 router.put(
   "/:id",

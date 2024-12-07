@@ -5,18 +5,51 @@ import AppError from "../../errors/AppError";
 import httpStatus from "http-status";
 
 const getAllUsers = async () => {
-  const result = await prisma.user.findMany();
+  const result = await prisma.user.findMany({
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      profileImage: true,
+      contactNumber: true,
+      role: true,
+      status: true,
+      createdAt: true,
+      updatedAt: true,
+      shop: true,
+      followShop: true,
+      reviews: true,
+    }
+  });
 
   return result;
 };
 
 const getUserWithEmail = async (email: string) => {
-  const result = await prisma.user.findUniqueOrThrow({
+  const result = await prisma.user.findUnique({
     where: {
       email,
       status: UserStatus.ACTIVE,
     },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      profileImage: true,
+      contactNumber: true,
+      role: true,
+      status: true,
+      createdAt: true,
+      updatedAt: true,
+      shop: true,
+      followShop: true,
+      reviews: true,
+    }
   });
+
+  if(!result){
+    return null
+  }
 
   return result;
 };
@@ -27,6 +60,20 @@ const getUserWithId = async (id: string) => {
       id,
       status: UserStatus.ACTIVE,
     },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      profileImage: true,
+      contactNumber: true,
+      role: true,
+      status: true,
+      createdAt: true,
+      updatedAt: true,
+      shop: true,
+      followShop: true,
+      reviews: true,
+    }
   });
 
   return result;
@@ -38,6 +85,20 @@ const updateUser = async (id: string, payload: IUserPayload) => {
       id,
     },
     data: payload,
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      profileImage: true,
+      contactNumber: true,
+      role: true,
+      status: true,
+      createdAt: true,
+      updatedAt: true,
+      shop: true,
+      followShop: true,
+      reviews: true,
+    }
   });
 
   return result;

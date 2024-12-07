@@ -4,4 +4,6 @@ interface IProductPayload {
   inventoryCount: number;
   description: string;
   categories: string[];
+  isFlashSale?: boolean;
+  discount?: number;
 }
