@@ -199,7 +199,6 @@ const forgotPassword = async (payload: { email: string }) => {
 };
 
 const resetPassword = async (token: string, payload: { id: string, password: string }) => {
-  console.log({ token, payload })
 
   const userData = await prisma.user.findUniqueOrThrow({
       where: {

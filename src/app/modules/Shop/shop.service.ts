@@ -72,7 +72,6 @@ const updateShop = async (
   payload: IUpdateShop,
   file: IFile | undefined
 ) => {
-    console.log(payload);
     //getting vendor data
   const userData = await prisma.user.findUniqueOrThrow({
     where: {
@@ -80,7 +79,6 @@ const updateShop = async (
       status: UserStatus.ACTIVE,
     },
   });
-  console.log(userData);
 
   //check if duplicate shop name
   if(payload.name){

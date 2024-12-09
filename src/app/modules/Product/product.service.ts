@@ -10,8 +10,15 @@ import { productSearchAbleFields } from "./product.constant";
 
 const createProduct = async (req: Request) => {
   const files = req.files as IFile[];
-  const { name, price, inventoryCount, description, categories, isFlashSale, discount } =
-    req.body as IProductPayload;
+  const {
+    name,
+    price,
+    inventoryCount,
+    description,
+    categories,
+    isFlashSale,
+    discount,
+  } = req.body as IProductPayload;
   const user = req.user;
 
   //check if the user exists and is vendor or not
@@ -19,7 +26,7 @@ const createProduct = async (req: Request) => {
     where: {
       email: user.email,
       status: UserStatus.ACTIVE,
-      role: UserRole.VENDOR
+      role: UserRole.VENDOR,
     },
     include: {
       shop: true,
@@ -35,7 +42,10 @@ const createProduct = async (req: Request) => {
 
   //check if at least one image is there
   if (!images || images.length === 0) {
-    throw new AppError(httpStatus.BAD_REQUEST, "At least one product image is required.");
+    throw new AppError(
+      httpStatus.BAD_REQUEST,
+      "At least one product image is required."
+    );
   }
 
   let flashSalePrice = null;
@@ -77,27 +87,30 @@ const createProduct = async (req: Request) => {
   return result;
 };
 
-const getAllProduct = async (params: Record<string, unknown>, options: IPaginationOptions) => {
+const getAllProduct = async (
+  params: Record<string, unknown>,
+  options: IPaginationOptions
+) => {
   const { page, limit, skip } = paginationHelper.calculatePagination(options);
-  const { searchTerm,price, ...filterData } = params;
+  const { searchTerm, price, category, ...filterData } = params;
 
   const andConditions: Prisma.ProductWhereInput[] = [];
 
-  //filter for search
-  if (params.searchTerm) {
+  // Filter for search
+  if (searchTerm) {
     andConditions.push({
-          OR: productSearchAbleFields.map(field => ({
-              [field]: {
-                  contains: params.searchTerm,
-                  mode: 'insensitive'
-              }
-          }))
-      })
-  };
+      OR: productSearchAbleFields.map((field) => ({
+        [field]: {
+          contains: searchTerm,
+          mode: "insensitive",
+        },
+      })),
+    });
+  }
 
-  // filter for price range
+  // Filter for price range
   if (price) {
-    const [minPrice, maxPrice] = (price as string).split('-').map(Number);
+    const [minPrice, maxPrice] = (price as string).split("-").map(Number);
     if (!isNaN(minPrice) && !isNaN(maxPrice)) {
       andConditions.push({
         price: {
@@ -108,65 +121,97 @@ const getAllProduct = async (params: Record<string, unknown>, options: IPaginati
     }
   }
 
-  // adding other filters
+  // Filter by categoryId (supporting multiple categories)
+  if (category) {
+    const categoryIds = (category as string).split(",").map((id) => id.trim());
+    if (categoryIds.length > 0) {
+      andConditions.push({
+        productCategory: {
+          some: {
+            categoryId: {
+              in: categoryIds,
+            },
+          },
+        },
+      });
+    }
+  }
+
+  // Adding other filters
   if (Object.keys(filterData).length > 0) {
     andConditions.push({
-          AND: Object.keys(filterData).map(key => ({
-              [key]: {
-                  equals: (filterData as any)[key]
-              }
-          }))
-      })
-  };
+      AND: Object.keys(filterData).map((key) => ({
+        [key]: {
+          equals: (filterData as any)[key],
+        },
+      })),
+    });
+  }
 
-  const whereConditions: Prisma.ProductWhereInput = andConditions.length > 0 ? { AND: andConditions } : {};
+  const whereConditions: Prisma.ProductWhereInput =
+    andConditions.length > 0 ? { AND: andConditions } : {};
 
   const result = await prisma.product.findMany({
     where: whereConditions,
     skip,
     take: limit,
-    orderBy: options.sortBy && options.sortOrder ? {
-        [options.sortBy]: options.sortOrder
-    } : {
-        createdAt: 'desc'
-    },
-    select: {
+    orderBy:
+      options.sortBy && options.sortOrder
+        ? {
+            [options.sortBy]: options.sortOrder,
+          }
+        : {
+            createdAt: "desc",
+          },
+    include: {
       shop: true,
-      productCategory: true
-    }
-});
-
-const total = await prisma.product.count({
-    where: whereConditions
-});
-
-return {
-    meta: {
-        page,
-        limit,
-        total
+      productCategory: {
+        include: {
+          category: true,
+        },
+      },
     },
-    data: result
+  });
+
+  const total = await prisma.product.count({
+    where: whereConditions,
+  });
+
+  return {
+    meta: {
+      page,
+      limit,
+      total,
+    },
+    data: result,
+  };
 };
 
-  return result;
-};
 
-const getFlashSaleProducts = async() => {
+
+const getFlashSaleProducts = async () => {
   const result = await prisma.product.findMany({
     where: {
-      isFlashSale: true
-    }
+      isFlashSale: true,
+    },
   });
 
   return result;
-}
+};
 
 const getSingleProduct = async (id: string) => {
   const result = await prisma.product.findUniqueOrThrow({
     where: {
-        id
-    }
+      id,
+    },
+    include: {
+      shop: true,
+      productCategory: {
+        include: {
+          category: true,
+        },
+      },
+    },
   });
 
   return result;
@@ -175,9 +220,9 @@ const getSingleProduct = async (id: string) => {
 const updateProduct = async (id: string, payload: Partial<IProductPayload>) => {
   const result = await prisma.product.update({
     where: {
-        id,
+      id,
     },
-    data: payload
+    data: payload,
   });
 
   return result;
@@ -186,8 +231,8 @@ const updateProduct = async (id: string, payload: Partial<IProductPayload>) => {
 const deleteProduct = async (id: string) => {
   const result = await prisma.product.delete({
     where: {
-        id,
-    }
+      id,
+    },
   });
 
   return result;

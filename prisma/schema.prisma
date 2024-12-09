@@ -22,6 +22,7 @@ model User {
   shop       Shop?
   followShop FollowShop[]
   reviews    Review[]
+  Payment    Payment[]
 
   @@map("users")
 }
@@ -79,6 +80,7 @@ model Product {
   shop            Shop              @relation(fields: [shopId], references: [id])
   productCategory ProductCategory[]
   reviews         Review[]
+  PaymentProduct  PaymentProduct[]
 
   @@map("products")
 }
@@ -109,6 +111,36 @@ model Review {
   @@map("reviews")
 }
 
+model Payment {
+  id              String        @id @default(uuid())
+  customerName    String
+  customerEmail   String
+  customerPhone   String
+  customerAddress String
+  userId          String
+  transactionId   String
+  paymentDate     DateTime      @default(now())
+  totalPrice      Float
+  status          PaymentStatus?
+
+  user     User             @relation(fields: [userId], references: [id])
+  products PaymentProduct[]
+
+  @@map("payments")
+}
+
+model PaymentProduct {
+  id        String  @id @default(uuid())
+  paymentId String
+  productId String
+  quantity  Int
+  price     Float
+  payment   Payment @relation(fields: [paymentId], references: [id])
+  product   Product @relation(fields: [productId], references: [id])
+
+  @@map("payment_products")
+}
+
 enum UserRole {
   CUSTOMER
   VENDOR
@@ -125,4 +157,11 @@ enum ShopStatus {
   ACTIVE
   BLACKLISTED
   DELETED
+}
+
+enum PaymentStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  REFUNDED
 }
