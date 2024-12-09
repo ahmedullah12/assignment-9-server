@@ -1,5 +1,3 @@
-import { join } from "path";
-import { readFileSync } from "fs";
 import { verifyPayment } from "./payment.utils";
 import prisma from "../../../shared/prisma";
 import { PaymentStatus } from "@prisma/client";
@@ -19,7 +17,34 @@ const confirmationService = async (
       data: {
         status: PaymentStatus.COMPLETED
       }
+    });
+
+    const paymentProducts = await prisma.paymentProduct.findMany({
+      where: {
+        paymentId,
+      },
+      select: {
+        productId: true,
+        quantity: true,
+      }
     })
+    
+    const updateProducts = paymentProducts.map((product) =>
+      prisma.product.update({
+        where: {
+          id: product.productId,
+        },
+        data: {
+          inventoryCount: {
+            decrement: product.quantity,
+          },
+        },
+      })
+    );
+
+    // Execute all updates in parallel
+    await Promise.all(updateProducts);
+
     message = "Successfully Paid!!!";
 
     return `
@@ -32,13 +57,6 @@ const confirmationService = async (
   } else {
     message = "Payment Failed!!!";
   }
-
-  // const filePath = join(__dirname, "../../../../public/confirmation.html");
-  // let template = readFileSync(filePath, "utf-8");
-
-  // template = template.replace("{{message}}", message);
-
-  // return template;
 };
 
 export const PaymentServices = {

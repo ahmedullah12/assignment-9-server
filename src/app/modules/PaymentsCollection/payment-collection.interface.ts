@@ -5,4 +5,5 @@ export interface IPaymentPayload {
   customerAddress: string;
   userId: string;
   totalPrice: number;
+  products: any;
 }

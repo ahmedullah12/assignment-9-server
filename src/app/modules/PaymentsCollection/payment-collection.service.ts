@@ -4,19 +4,31 @@ import { initiatePayment } from "../Payment/payment.utils";
 import { IPaymentPayload } from "./payment-collection.interface";
 
 const createPayment = async (payload: IPaymentPayload, user: JwtPayload) => {
+  const {products, ...payloadData} = payload;
   const userData = await prisma.user.findUniqueOrThrow({
-    where: {
-      email: user.email
-    }
+    where: { email: user.email },
   });
-
-  console.log(payload);
 
   const transactionId = `TXN-SS-${Date.now()}`;
 
+  // Create the Payment record
   const payment = await prisma.payment.create({
-    data: { ...payload, transactionId, userId: userData?.id },
+    data: {
+      ...payloadData,
+      transactionId,
+      userId: userData.id,
+    },
   });
+
+  // Create PaymentProduct records for each product
+  const paymentProducts = products.map((product: any) => ({
+    paymentId: payment.id,
+    productId: product.id,
+    quantity: product.addedProductQuantity,
+    price: product.flashSalePrice ? product.flashSalePrice : product.price,
+  }));
+
+  await prisma.paymentProduct.createMany({ data: paymentProducts });
 
   const paymentData = {
     transactionId,

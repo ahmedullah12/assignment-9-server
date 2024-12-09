@@ -80,7 +80,7 @@ model Product {
   shop            Shop              @relation(fields: [shopId], references: [id])
   productCategory ProductCategory[]
   reviews         Review[]
-  PaymentProduct  PaymentProduct[]
+  paymentProduct  PaymentProduct[]
 
   @@map("products")
 }

@@ -5,7 +5,7 @@ import sendResponse from '../../../shared/sendResponse';
 
 const createPayment = catchAsync(async (req, res) => {
   const user = req.user;
-  console.log(user);
+  
   const result = await PaymentCollectionService.createPayment(req.body, user);
 
   sendResponse(res, {
