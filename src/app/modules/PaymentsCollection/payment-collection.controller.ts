@@ -5,18 +5,31 @@ import sendResponse from '../../../shared/sendResponse';
 
 const createPayment = catchAsync(async (req, res) => {
   const user = req.user;
-  
+
   const result = await PaymentCollectionService.createPayment(req.body, user);
 
   sendResponse(res, {
-    statusCode: httpStatus.OK,
+    statusCode: httpStatus.CREATED,
     success: true,
     message: 'Payment started successfully!!',
     data: result,
   });
 });
-const getPayments = catchAsync(async (req, res) => {
-  const result = await PaymentCollectionService.getPayments();
+
+const getAllPayments = catchAsync(async (req, res) => {
+  const result = await PaymentCollectionService.getAllPayments();
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'Payments fetched successfully!!',
+    data: result,
+  });
+});
+
+const getUserPayments = catchAsync(async (req, res) => {
+  const user = req.user;
+  const result = await PaymentCollectionService.getUserPayments(user);
 
   sendResponse(res, {
     statusCode: httpStatus.OK,
@@ -28,5 +41,6 @@ const getPayments = catchAsync(async (req, res) => {
 
 export const PaymentCollectionController = {
     createPayment,
-    getPayments,
+    getAllPayments,
+    getUserPayments,
 }

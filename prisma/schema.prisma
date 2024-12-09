@@ -22,7 +22,7 @@ model User {
   shop       Shop?
   followShop FollowShop[]
   reviews    Review[]
-  Payment    Payment[]
+  payment    Payment[]
 
   @@map("users")
 }
@@ -98,7 +98,7 @@ model ProductCategory {
 
 model Review {
   id        String   @id @default(uuid())
-  rating    Int      @default(1) // e.g., 1-5 scale
+  rating    Int      @default(1)
   comment   String?
   userId    String
   productId String
@@ -112,14 +112,14 @@ model Review {
 }
 
 model Payment {
-  id              String        @id @default(uuid())
+  id              String         @id @default(uuid())
   customerName    String
   customerEmail   String
   customerPhone   String
   customerAddress String
   userId          String
   transactionId   String
-  paymentDate     DateTime      @default(now())
+  paymentDate     DateTime       @default(now())
   totalPrice      Float
   status          PaymentStatus?
 

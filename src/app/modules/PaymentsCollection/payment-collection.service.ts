@@ -46,9 +46,43 @@ const createPayment = async (payload: IPaymentPayload, user: JwtPayload) => {
   return paymentSession;
 };
 
-const getPayments = async () => {};
+const getAllPayments = async () => {
+  const result = await prisma.payment.findMany({
+    include: {
+      user: true,
+      products: true,
+    }
+  });
+
+  return result;
+};
+
+const getUserPayments = async(user: JwtPayload) => {
+  const userData = await prisma.user.findUniqueOrThrow({
+    where: {
+      email: user.email
+    }
+  });
+
+  const result = await prisma.payment.findMany({
+    where: {
+      userId: userData.id
+    },
+    include: {
+      user: true,
+      products: {
+        include: {
+          product: true
+        }
+      },
+    }
+  });
+
+  return result;
+}
 
 export const PaymentCollectionService = {
   createPayment,
-  getPayments,
+  getAllPayments,
+  getUserPayments,
 };

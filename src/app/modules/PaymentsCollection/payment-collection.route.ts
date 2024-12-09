@@ -6,6 +6,7 @@ import { UserRole } from '@prisma/client';
 const router = Router();
 
 router.post('/create-payment',auth(UserRole.CUSTOMER), PaymentCollectionController.createPayment);
-router.get('/', auth('ADMIN'), PaymentCollectionController.getPayments);
+router.get('/', auth(UserRole.ADMIN), PaymentCollectionController.getAllPayments);
+router.get('/my-payments', auth(UserRole.CUSTOMER), PaymentCollectionController.getUserPayments);
 
 export const PaymentCollectionRoutes = router;
