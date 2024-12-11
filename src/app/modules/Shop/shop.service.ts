@@ -92,32 +92,42 @@ const updateShop = async (
   payload: IUpdateShop,
   file: IFile | undefined
 ) => {
-    //getting vendor data
+  // Get vendor data
   const userData = await prisma.user.findUniqueOrThrow({
     where: {
       email: user.email,
       status: UserStatus.ACTIVE,
     },
+    include: {
+      shop: true,
+    },
   });
 
-  //check if duplicate shop name
-  if(payload.name){
-    const isShopNameExists = await prisma.shop.findUnique({
-        where: {
-          name: payload.name,
-        },
-      });
-    
-      if (isShopNameExists) {
-        throw new Error("Shop name already exists!!");
-      }
+  // Check if shop exists for the vendor
+  const existingShop = userData.shop;
+  if (!existingShop) {
+    throw new AppError(httpStatus.NOT_FOUND, "Shop not found for the vendor.");
   }
 
-  //check if update logo
+  // Check if duplicate shop name only if name is being updated and is different
+  if (payload.name && payload.name !== existingShop.name) {
+    const isShopNameExists = await prisma.shop.findUnique({
+      where: {
+        name: payload.name,
+      },
+    });
+
+    if (isShopNameExists) {
+      throw new AppError(httpStatus.CONFLICT, "Shop name already exists!");
+    }
+  }
+
+  // Update logo if provided
   if (file) {
     payload.logoUrl = file.path;
   }
 
+  // Perform the update
   const result = await prisma.shop.update({
     where: {
       vendorId: userData.id,
@@ -127,6 +137,7 @@ const updateShop = async (
 
   return result;
 };
+
 
 const deleteShop = async (shopId: string) => {
   const result = await prisma.shop.update({
