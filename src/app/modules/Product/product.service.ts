@@ -187,16 +187,25 @@ const getAllProduct = async (
   };
 };
 
+const getFlashSaleProducts = async ( options: IPaginationOptions) => {
+  const { page, limit, skip } = paginationHelper.calculatePagination(options);
 
-
-const getFlashSaleProducts = async () => {
   const result = await prisma.product.findMany({
     where: {
       isFlashSale: true,
     },
+    skip,
+    take: limit,
   });
 
-  return result;
+  return {
+    meta: {
+      page,
+      limit,
+      total: result.length,
+    },
+    data: result,
+  };;
 };
 
 const getSingleProduct = async (id: string) => {
@@ -210,6 +219,11 @@ const getSingleProduct = async (id: string) => {
         include: {
           category: true,
         },
+      },
+      reviews: {
+        include: {
+          user: true
+        }
       },
     },
   });

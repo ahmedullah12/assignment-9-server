@@ -56,8 +56,8 @@ const getAllShop = async () => {
   return result;
 };
 
-const getSingleShop = async (vendorId: string) => {
-  const result = await prisma.shop.findUniqueOrThrow({
+const getSingleShopWithId = async (vendorId: string) => {
+  const result = await prisma.shop.findUnique({
     where: {
       vendorId,
       status: ShopStatus.ACTIVE,
@@ -66,6 +66,26 @@ const getSingleShop = async (vendorId: string) => {
 
   return result;
 };
+
+const getVendorShop = async(user: JwtPayload) => {
+  const userData = await prisma.user.findUniqueOrThrow({
+    where: {
+      email: user.email
+    }
+  });
+
+  const result = await prisma.shop.findUniqueOrThrow({
+    where: {
+      vendorId: userData.id
+    },
+    include: {
+      vendor: true,
+      products: true
+    }
+  });
+
+  return result;
+}
 
 const updateShop = async (
   user: JwtPayload,
@@ -124,7 +144,8 @@ const deleteShop = async (shopId: string) => {
 export const ShopServices = {
   createShop,
   getAllShop,
-  getSingleShop,
+  getSingleShopWithId,
+  getVendorShop,
   updateShop,
   deleteShop,
 };

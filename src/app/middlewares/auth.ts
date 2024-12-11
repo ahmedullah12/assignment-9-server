@@ -2,6 +2,8 @@ import { NextFunction, Request, Response } from "express";
 import config from "../../config";
 import { Secret } from "jsonwebtoken";
 import { verifyToken } from "../../helpers/jwtHelpers";
+import AppError from "../errors/AppError";
+import httpStatus from "http-status";
 
 const auth = (...roles: string[]) => {
   return async (
@@ -13,17 +15,18 @@ const auth = (...roles: string[]) => {
       const token = req.headers.authorization;
 
       if (!token) {
-        throw new Error("You are not authorized!");
+        throw new AppError(httpStatus.UNAUTHORIZED, "You are not authorized!");
       }
 
-      const verifiedUser = verifyToken(
-        token,
-        config.access_token_secret as Secret
-      );
+      let decoded;
+      try {
+        decoded = verifyToken(token, config.access_token_secret as Secret);
+      } catch (err) {
+        throw new AppError(httpStatus.UNAUTHORIZED, "Unauthorized22");
+      }
 
-      req.user = verifiedUser;
-
-      if (roles.length && !roles.includes(verifiedUser.role)) {
+      req.user = decoded;
+      if (roles.length && !roles.includes(decoded.role)) {
         throw new Error("Forbidden!");
       }
       next();

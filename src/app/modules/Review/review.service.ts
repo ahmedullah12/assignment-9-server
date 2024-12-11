@@ -40,6 +40,10 @@ const getProductReviews = async (productId: string) => {
     where: {
       productId,
     },
+    include: {
+      user: true,
+      product: true,
+    }
   });
 
   return result;
@@ -56,6 +60,10 @@ const getUserReviews = async (user: JwtPayload) => {
     where: {
       userId: userData.id,
     },
+    include: {
+      user: true,
+      product: true
+    }
   });
 
   return result;

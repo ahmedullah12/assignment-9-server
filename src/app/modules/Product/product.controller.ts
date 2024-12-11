@@ -31,9 +31,9 @@ const getAllProduct = catchAsync(async (req, res) => {
 });
 
 const getFlashSaleProducts = catchAsync(async (req, res) => {
-  
+  const options = pick(req.query, ["limit", "page"]);
 
-  const result = await ProductServices.getFlashSaleProducts();
+  const result = await ProductServices.getFlashSaleProducts(options);
 
   sendResponse(res, {
     statusCode: httpStatus.OK,

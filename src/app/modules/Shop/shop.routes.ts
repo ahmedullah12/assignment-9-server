@@ -19,9 +19,14 @@ router.post(
 );
 router.get("/", auth(UserRole.ADMIN), ShopController.getAllShop);
 router.get(
+  "/user-shop",
+  auth(UserRole.ADMIN, UserRole.VENDOR),
+  ShopController.getVendorShop
+);
+router.get(
   "/:shopId",
   auth(UserRole.ADMIN, UserRole.VENDOR),
-  ShopController.getSingleShop
+  ShopController.getSingleShopWithId
 );
 router.put(
   "/",

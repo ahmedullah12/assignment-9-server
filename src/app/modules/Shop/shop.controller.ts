@@ -25,10 +25,23 @@ const getAllShop = catchAsync(async (req, res) => {
   });
 });
 
-const getSingleShop = catchAsync(async (req, res) => {
+const getSingleShopWithId = catchAsync(async (req, res) => {
   const { shopId } = req.params;
 
-  const result = await ShopServices.getSingleShop(shopId);
+  const result = await ShopServices.getSingleShopWithId(shopId);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Shop fetched successfully!!",
+    data: result,
+  });
+});
+
+const getVendorShop = catchAsync(async (req, res) => {
+  const user = req.user;
+
+  const result = await ShopServices.getVendorShop(user);
 
   sendResponse(res, {
     statusCode: httpStatus.OK,
@@ -66,7 +79,8 @@ const deleteShop = catchAsync(async (req, res) => {
 export const ShopController = {
     createShop,
     getAllShop,
-    getSingleShop,
+    getSingleShopWithId,
+    getVendorShop,
     updateShop,
     deleteShop,
 }

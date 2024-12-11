@@ -1,4 +1,4 @@
-import { UserStatus } from "@prisma/client";
+import { ShopStatus, UserStatus } from "@prisma/client";
 import prisma from "../../../shared/prisma";
 import { JwtPayload } from "jsonwebtoken";
 import AppError from "../../errors/AppError";
@@ -41,7 +41,11 @@ const getUserWithEmail = async (email: string) => {
       status: true,
       createdAt: true,
       updatedAt: true,
-      shop: true,
+      shop: {
+        include: {
+          products: true
+        }
+      },
       followShop: true,
       reviews: true,
     }

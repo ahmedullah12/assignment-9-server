@@ -35,7 +35,7 @@ const getUserReviews = catchAsync(async (req, res) => {
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
-    message: "Shop fetched successfully!!",
+    message: "Reviews fetched successfully!!",
     data: result,
   });
 });
@@ -47,7 +47,7 @@ const updateReview = catchAsync(async (req, res) => {
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
-    message: "Shop updated successfully!!",
+    message: "Review updated successfully!!",
     data: result,
   });
 });
@@ -60,7 +60,7 @@ const deleteReview = catchAsync(async (req, res) => {
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
-    message: "Shop deleted successfully!!",
+    message: "Review deleted successfully!!",
     data: result,
   });
 });
