@@ -7,3 +7,11 @@ interface IProductPayload {
   isFlashSale?: boolean;
   discount?: number;
 }
+
+interface IProductUpdate {
+  name: string;
+  price: number;
+  inventoryCount: number;
+  description: string;
+  categories: string[];
+}

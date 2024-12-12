@@ -287,13 +287,50 @@ const duplicateProduct = async (id: string) => {
   return duplicatedProduct;
 };
 
-const updateProduct = async (id: string, payload: Partial<IProductPayload>) => {
-  const result = await prisma.product.update({
+const updateProduct = async (id: string, payload: IProductUpdate) => {
+  const {categories, ...payloadData} = payload;
+  const productData = await prisma.product.findUniqueOrThrow({
     where: {
-      id,
+      id
     },
-    data: payload,
-  });
+    include: {
+      productCategory: true
+    }
+  })
+
+  const result = await prisma.$transaction(async(transactionClient) => {
+
+    await Promise.all(
+      productData.productCategory.map((category) =>
+        transactionClient.productCategory.deleteMany({
+          where: {
+            productId: category.productId,
+            categoryId: category.categoryId,
+          },
+        })
+      )
+    );
+
+    const categoriesData = categories.map((category: string) => ({
+      productId: productData.id,
+      categoryId: category,
+    }));
+
+    //creating productCategory
+    await transactionClient.productCategory.createMany({
+      data: categoriesData,
+    });
+
+    const result = await prisma.product.update({
+      where: {
+        id,
+      },
+      data: payloadData,
+    });
+
+    return result
+  })
+  
 
   return result;
 };
