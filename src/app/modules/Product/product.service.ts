@@ -187,7 +187,7 @@ const getAllProduct = async (
   };
 };
 
-const getFlashSaleProducts = async ( options: IPaginationOptions) => {
+const getFlashSaleProducts = async (options: IPaginationOptions) => {
   const { page, limit, skip } = paginationHelper.calculatePagination(options);
 
   const result = await prisma.product.findMany({
@@ -205,7 +205,7 @@ const getFlashSaleProducts = async ( options: IPaginationOptions) => {
       total: result.length,
     },
     data: result,
-  };;
+  };
 };
 
 const getSingleProduct = async (id: string) => {
@@ -222,13 +222,69 @@ const getSingleProduct = async (id: string) => {
       },
       reviews: {
         include: {
-          user: true
-        }
+          user: true,
+        },
       },
     },
   });
 
   return result;
+};
+
+const duplicateProduct = async (id: string) => {
+  // get the original product
+  const originalProduct = await prisma.product.findUniqueOrThrow({
+    where: { id },
+    include: {
+      productCategory: true,
+    },
+  });
+
+  const {
+    name,
+    description,
+    inventoryCount,
+    price,
+    images,
+    discount,
+    flashSalePrice,
+    isFlashSale,
+    shopId,
+  } = originalProduct;
+
+  const newProductData = {
+    name,
+    description,
+    inventoryCount,
+    price,
+    images,
+    discount,
+    flashSalePrice,
+    isFlashSale,
+    shopId,
+  };
+
+  const duplicatedProduct = await prisma.$transaction(
+    async (transactionClient) => {
+      const newProduct = await transactionClient.product.create({
+        data: newProductData,
+      });
+
+      // Duplicate categories
+      const newCategories = originalProduct.productCategory.map((category) => ({
+        productId: newProduct.id,
+        categoryId: category.categoryId,
+      }));
+
+      await transactionClient.productCategory.createMany({
+        data: newCategories,
+      });
+
+      return newProduct;
+    }
+  );
+
+  return duplicatedProduct;
 };
 
 const updateProduct = async (id: string, payload: Partial<IProductPayload>) => {
@@ -243,10 +299,29 @@ const updateProduct = async (id: string, payload: Partial<IProductPayload>) => {
 };
 
 const deleteProduct = async (id: string) => {
-  const result = await prisma.product.delete({
-    where: {
-      id,
-    },
+  const result = await prisma.$transaction(async (transactionClient) => {
+    await transactionClient.productCategory.deleteMany({
+      where: {
+        productId: id,
+      },
+    });
+    await transactionClient.review.deleteMany({
+      where: {
+        productId: id,
+      },
+    });
+    await transactionClient.paymentProduct.deleteMany({
+      where: {
+        productId: id,
+      },
+    });
+    const result = await transactionClient.product.delete({
+      where: {
+        id,
+      },
+    });
+
+    return result;
   });
 
   return result;
@@ -257,6 +332,7 @@ export const ProductServices = {
   getAllProduct,
   getFlashSaleProducts,
   getSingleProduct,
+  duplicateProduct,
   updateProduct,
   deleteProduct,
 };

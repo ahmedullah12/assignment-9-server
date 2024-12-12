@@ -55,6 +55,19 @@ const getSingleProduct = catchAsync(async (req, res) => {
   });
 });
 
+const duplicateProduct = catchAsync(async (req, res) => {
+  const { id } = req.params;
+
+  const result = await ProductServices.duplicateProduct(id);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Product duplicated successfully!!",
+    data: result,
+  });
+});
+
 const updateProduct = catchAsync(async (req, res) => {
   const { id } = req.params;
   const result = await ProductServices.updateProduct(id, req.body);
@@ -84,6 +97,7 @@ export const ProductController = {
   getAllProduct,
   getFlashSaleProducts,
   getSingleProduct,
+  duplicateProduct,
   updateProduct,
   deleteProduct,
 };
