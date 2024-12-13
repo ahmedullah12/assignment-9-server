@@ -19,6 +19,7 @@ router.post(
 );
 router.get("/", ProductController.getAllProduct);
 router.get("/flash-sale", ProductController.getFlashSaleProducts);
+router.get("/vendor-products", ProductController.getVendorsProducts);
 router.post("/duplicate-product/:id", ProductController.duplicateProduct);
 router.get("/:id", ProductController.getSingleProduct);
 router.put(

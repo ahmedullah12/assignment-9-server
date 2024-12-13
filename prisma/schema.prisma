@@ -100,6 +100,7 @@ model Review {
   id        String   @id @default(uuid())
   rating    Int      @default(1)
   comment   String?
+  reply     String?
   userId    String
   productId String
   createdAt DateTime @default(now())

@@ -40,6 +40,19 @@ const getUserReviews = catchAsync(async (req, res) => {
   });
 });
 
+const getShopProductReviews = catchAsync(async (req, res) => {
+  const { shopId } = req.query;
+
+  const result = await ReviewServices.getShopProductReviews(shopId as string);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Reviews fetched successfully!!",
+    data: result,
+  });
+});
+
 const updateReview = catchAsync(async (req, res) => {
   const { reviewId } = req.params;
   const result = await ReviewServices.updateReview(reviewId, req.body);
@@ -65,10 +78,25 @@ const deleteReview = catchAsync(async (req, res) => {
   });
 });
 
+const replyReview = catchAsync(async (req, res) => {
+  const { reviewId } = req.query;
+
+  const result = await ReviewServices.replyReview(reviewId as string, req.body);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Review replied successfully!!",
+    data: result,
+  });
+});
+
 export const ReviewController = {
   createReview,
   getProductReviews,
   getUserReviews,
+  getShopProductReviews,
   updateReview,
   deleteReview,
+  replyReview,
 };

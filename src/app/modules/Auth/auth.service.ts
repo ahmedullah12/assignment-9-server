@@ -175,7 +175,6 @@ const forgotPassword = async (payload: { email: string }) => {
       config.reset_pass_secret as Secret,
       config.reset_pass_token_expires_in as string
   )
-  //console.log(resetPassToken)
 
   const resetPassLink = config.reset_pass_link + `?userId=${userData.id}&token=${resetPassToken}`
 

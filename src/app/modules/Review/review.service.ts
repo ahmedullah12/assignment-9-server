@@ -43,7 +43,7 @@ const getProductReviews = async (productId: string) => {
     include: {
       user: true,
       product: true,
-    }
+    },
   });
 
   return result;
@@ -62,8 +62,24 @@ const getUserReviews = async (user: JwtPayload) => {
     },
     include: {
       user: true,
-      product: true
-    }
+      product: true,
+    },
+  });
+
+  return result;
+};
+
+const getShopProductReviews = async (shopId: string) => {
+  const result = await prisma.review.findMany({
+    where: {
+      product: {
+        shopId,
+      },
+    },
+    include: {
+      user: true,
+      product: true,
+    },
   });
 
   return result;
@@ -89,12 +105,29 @@ const deleteReview = async (id: string) => {
       id,
     },
   });
+
+  return result;
+};
+
+const replyReview = async (reviewId: string, payload: { reply: string }) => {
+  const result = await prisma.review.update({
+    where: {
+      id: reviewId,
+    },
+    data: {
+      reply: payload.reply,
+    },
+  });
+
+  return result;
 };
 
 export const ReviewServices = {
   createReview,
   getProductReviews,
   getUserReviews,
+  getShopProductReviews,
   updateReview,
   deleteReview,
+  replyReview,
 };

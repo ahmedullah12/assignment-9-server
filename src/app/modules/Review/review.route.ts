@@ -8,6 +8,8 @@ const router = Router();
 router.post("/create-review", auth(UserRole.CUSTOMER), ReviewController.createReview);
 router.get("/product-reviews/:productId", ReviewController.getProductReviews);
 router.get("/user-reviews",auth(UserRole.CUSTOMER), ReviewController.getUserReviews);
+router.get("/shop-product-reviews",auth(UserRole.VENDOR), ReviewController.getShopProductReviews);
+router.put("/reply-review", ReviewController.replyReview)
 router.put("/:reviewId", ReviewController.updateReview);
 router.delete("/:id", ReviewController.deleteReview);
 

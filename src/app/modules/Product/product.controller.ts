@@ -30,6 +30,20 @@ const getAllProduct = catchAsync(async (req, res) => {
   });
 });
 
+const getVendorsProducts = catchAsync(async (req, res) => {
+  const { shopId } = req.query;
+  const options = pick(req.query, ["limit", "page"]);
+
+  const result = await ProductServices.getVendorsProducts(shopId as string, options);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Vendor products fetched successfully!!",
+    data: result,
+  });
+});
+
 const getFlashSaleProducts = catchAsync(async (req, res) => {
   const options = pick(req.query, ["limit", "page"]);
 
@@ -95,6 +109,7 @@ const deleteProduct = catchAsync(async (req, res) => {
 export const ProductController = {
   createProduct,
   getAllProduct,
+  getVendorsProducts,
   getFlashSaleProducts,
   getSingleProduct,
   duplicateProduct,

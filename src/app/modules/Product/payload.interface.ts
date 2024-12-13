@@ -14,4 +14,5 @@ interface IProductUpdate {
   inventoryCount: number;
   description: string;
   categories: string[];
+  flashSalePrice?: number;
 }
