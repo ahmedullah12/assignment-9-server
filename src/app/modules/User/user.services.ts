@@ -3,8 +3,12 @@ import prisma from "../../../shared/prisma";
 import { JwtPayload } from "jsonwebtoken";
 import AppError from "../../errors/AppError";
 import httpStatus from "http-status";
+import { IPaginationOptions } from "../../interfaces/pagination";
+import { paginationHelper } from "../../../helpers/paginationHelper";
 
-const getAllUsers = async () => {
+const getAllUsers = async (options: IPaginationOptions) => {
+  const { page, limit, skip } = paginationHelper.calculatePagination(options);
+
   const result = await prisma.user.findMany({
     select: {
       id: true,
@@ -19,10 +23,21 @@ const getAllUsers = async () => {
       shop: true,
       followShop: true,
       reviews: true,
-    }
+    },
+    skip,
+    take: limit,
   });
 
-  return result;
+  const total = await prisma.user.count();
+
+  return {
+    meta: {
+      page,
+      limit,
+      total,
+    },
+    data: result,
+  };
 };
 
 const getUserWithEmail = async (email: string) => {
@@ -43,16 +58,16 @@ const getUserWithEmail = async (email: string) => {
       updatedAt: true,
       shop: {
         include: {
-          products: true
-        }
+          products: true,
+        },
       },
       followShop: true,
       reviews: true,
-    }
+    },
   });
 
-  if(!result){
-    return null
+  if (!result) {
+    return null;
   }
 
   return result;
@@ -77,7 +92,7 @@ const getUserWithId = async (id: string) => {
       shop: true,
       followShop: true,
       reviews: true,
-    }
+    },
   });
 
   return result;
@@ -102,7 +117,7 @@ const updateUser = async (id: string, payload: IUserPayload) => {
       shop: true,
       followShop: true,
       reviews: true,
-    }
+    },
   });
 
   return result;
@@ -122,24 +137,47 @@ const deleteUser = async (id: string) => {
 };
 
 const suspendUser = async (id: string) => {
+  const user = await prisma.user.findUniqueOrThrow({
+    where: { id },
+    select: { status: true },
+  });
+
+  const newStatus =
+    user.status === UserStatus.SUSPENDED
+      ? UserStatus.ACTIVE
+      : UserStatus.SUSPENDED;
+
   const result = await prisma.user.update({
-    where: {
-      id,
-    },
-    data: {
-      status: UserStatus.SUSPENDED,
+    where: { id },
+    data: { status: newStatus },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      profileImage: true,
+      contactNumber: true,
+      role: true,
+      status: true,
+      createdAt: true,
+      updatedAt: true,
     },
   });
 
-  return result;
+  return {
+    message:
+      result.status === UserStatus.SUSPENDED
+        ? "User has been suspended!!"
+        : "User account has been reactivated!!",
+    user: result,
+  };
 };
 
 const followShop = async (user: JwtPayload, shopId: string) => {
   const userData = await prisma.user.findUniqueOrThrow({
     where: {
-      email: user.email
-    }
-  })
+      email: user.email,
+    },
+  });
 
   // check if the shop exists
   const shop = await prisma.shop.findUnique({
@@ -175,11 +213,11 @@ const followShop = async (user: JwtPayload, shopId: string) => {
 };
 
 export const UserServices = {
-    getAllUsers,
-    getUserWithEmail,
-    getUserWithId,
-    updateUser,
-    deleteUser,
-    suspendUser,
-    followShop
-}
+  getAllUsers,
+  getUserWithEmail,
+  getUserWithId,
+  updateUser,
+  deleteUser,
+  suspendUser,
+  followShop,
+};

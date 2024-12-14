@@ -201,11 +201,17 @@ const getVendorsProducts = async (
     take: limit,
   });
 
+  const total = await prisma.product.count({
+    where: {
+      shopId,
+    },
+  })
+
   return {
     meta: {
       page,
       limit,
-      total: result.length,
+      total,
     },
     data: result,
   };
@@ -222,11 +228,17 @@ const getFlashSaleProducts = async (options: IPaginationOptions) => {
     take: limit,
   });
 
+  const total = await prisma.product.count({
+    where: {
+      isFlashSale: true
+    }
+  })
+
   return {
     meta: {
       page,
       limit,
-      total: result.length,
+      total,
     },
     data: result,
   };

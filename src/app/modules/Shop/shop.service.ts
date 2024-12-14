@@ -56,12 +56,21 @@ const getAllShop = async () => {
   return result;
 };
 
-const getSingleShopWithId = async (vendorId: string) => {
+const getSingleShopWithId = async (shopId: string) => {
   const result = await prisma.shop.findUnique({
     where: {
-      vendorId,
+      id: shopId,
       status: ShopStatus.ACTIVE,
     },
+    include: {
+      vendor: true,
+      products: true,
+      followShop: {
+        include: {
+          user: true,
+        }
+      }
+    }
   });
 
   return result;

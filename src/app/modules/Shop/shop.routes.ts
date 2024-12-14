@@ -25,7 +25,6 @@ router.get(
 );
 router.get(
   "/:shopId",
-  auth(UserRole.ADMIN, UserRole.VENDOR),
   ShopController.getSingleShopWithId
 );
 router.put(

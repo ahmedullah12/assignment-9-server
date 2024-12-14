@@ -3,9 +3,12 @@ import catchAsync from "../../../shared/catchAsync";
 import sendResponse from "../../../shared/sendResponse";
 import { CategoryServices } from "../Category/category.service";
 import { UserServices } from "./user.services";
+import pick from "../../../shared/pick";
 
 const getAllUsers = catchAsync(async (req, res) => {
-  const result = await UserServices.getAllUsers();
+  const options = pick(req.query, ["limit", "page"]);
+
+  const result = await UserServices.getAllUsers(options);
 
   sendResponse(res, {
     statusCode: httpStatus.OK,

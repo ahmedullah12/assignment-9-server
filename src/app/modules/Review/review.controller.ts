@@ -2,6 +2,7 @@ import httpStatus from "http-status";
 import catchAsync from "../../../shared/catchAsync";
 import sendResponse from "../../../shared/sendResponse";
 import { ReviewServices } from "../Review/review.service";
+import pick from "../../../shared/pick";
 
 const createReview = catchAsync(async (req, res) => {
   const user = req.user;
@@ -29,8 +30,9 @@ const getProductReviews = catchAsync(async (req, res) => {
 
 const getUserReviews = catchAsync(async (req, res) => {
   const user = req.user;
+  const options = pick(req.query, ["limit", "page"]);
 
-  const result = await ReviewServices.getUserReviews(user);
+  const result = await ReviewServices.getUserReviews(user, options);
 
   sendResponse(res, {
     statusCode: httpStatus.OK,
@@ -42,8 +44,9 @@ const getUserReviews = catchAsync(async (req, res) => {
 
 const getShopProductReviews = catchAsync(async (req, res) => {
   const { shopId } = req.query;
+  const options = pick(req.query, ["limit", "page"]);
 
-  const result = await ReviewServices.getShopProductReviews(shopId as string);
+  const result = await ReviewServices.getShopProductReviews(shopId as string, options);
 
   sendResponse(res, {
     statusCode: httpStatus.OK,

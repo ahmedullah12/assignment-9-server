@@ -1,0 +1,17 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.AuthRoutes = void 0;
+const express_1 = require("express");
+const auth_controller_1 = require("./auth.controller");
+const validateRequest_1 = require("../../middlewares/validateRequest");
+const auth_validations_1 = require("./auth.validations");
+const multer_config_1 = require("../../../config/multer.config");
+const bodyParser_1 = require("../../middlewares/bodyParser");
+const router = (0, express_1.Router)();
+router.post("/sign-up", multer_config_1.multerUpload.single("image"), bodyParser_1.parseBody, (0, validateRequest_1.validateRequest)(auth_validations_1.AuthValidations.signUpValidationSchema), auth_controller_1.AuthController.signUp);
+router.post("/login", (0, validateRequest_1.validateRequest)(auth_validations_1.AuthValidations.loginValidationSchema), auth_controller_1.AuthController.login);
+router.post('/refresh-token', auth_controller_1.AuthController.refreshToken);
+router.put('/change-password/:userId', (0, validateRequest_1.validateRequest)(auth_validations_1.AuthValidations.changePasswordValidationSchema), auth_controller_1.AuthController.changePassword);
+router.post('/forget-password', (0, validateRequest_1.validateRequest)(auth_validations_1.AuthValidations.forgetPasswordValidationSchema), auth_controller_1.AuthController.forgetPassword);
+router.post('/reset-password', (0, validateRequest_1.validateRequest)(auth_validations_1.AuthValidations.resetPasswordValidationSchema), auth_controller_1.AuthController.resetPassword);
+exports.AuthRoutes = router;

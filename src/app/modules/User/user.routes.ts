@@ -17,6 +17,10 @@ router.put(
 );
 router.delete("/:id", UserController.deleteUser);
 router.delete("/suspend-user/:id", UserController.suspendUser);
-router.put("/follow-shop", UserController.followShop);
+router.put(
+  "/follow-shop/:shopId",
+  auth(UserRole.CUSTOMER),
+  UserController.followShop
+);
 
 export const UserRoutes = router;

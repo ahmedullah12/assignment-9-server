@@ -1,0 +1,22 @@
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.ShopRoutes = void 0;
+const express_1 = require("express");
+const shop_controller_1 = require("./shop.controller");
+const auth_1 = __importDefault(require("../../middlewares/auth"));
+const client_1 = require("@prisma/client");
+const multer_config_1 = require("../../../config/multer.config");
+const bodyParser_1 = require("../../middlewares/bodyParser");
+const validateRequest_1 = require("../../middlewares/validateRequest");
+const shop_validations_1 = require("./shop.validations");
+const router = (0, express_1.Router)();
+router.post("/create-shop", (0, auth_1.default)(client_1.UserRole.VENDOR), multer_config_1.multerUpload.single("logo"), bodyParser_1.parseBody, (0, validateRequest_1.validateRequest)(shop_validations_1.ShopValidations.createShopValidationSchema), shop_controller_1.ShopController.createShop);
+router.get("/", (0, auth_1.default)(client_1.UserRole.ADMIN), shop_controller_1.ShopController.getAllShop);
+router.get("/user-shop", (0, auth_1.default)(client_1.UserRole.ADMIN, client_1.UserRole.VENDOR), shop_controller_1.ShopController.getVendorShop);
+router.get("/:shopId", shop_controller_1.ShopController.getSingleShopWithId);
+router.put("/", (0, auth_1.default)(client_1.UserRole.VENDOR), multer_config_1.multerUpload.single("logo"), bodyParser_1.parseBody, shop_controller_1.ShopController.updateShop);
+router.delete("/:shopId", shop_controller_1.ShopController.deleteShop);
+exports.ShopRoutes = router;

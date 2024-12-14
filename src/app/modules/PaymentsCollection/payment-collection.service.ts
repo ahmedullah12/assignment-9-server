@@ -92,6 +92,9 @@ const getUserPayments = async (
     },
     skip,
     take: limit,
+    orderBy: {
+      paymentDate: "desc",
+    },
     include: {
       user: true,
       products: {
@@ -149,6 +152,9 @@ const getShopPayments = async (
     },
     skip,
     take: limit,
+    orderBy: {
+      paymentDate: "desc",
+    },
     include: {
       user: true,
       products: {

@@ -2,6 +2,8 @@ import { JwtPayload } from "jsonwebtoken";
 import prisma from "../../../shared/prisma";
 import AppError from "../../errors/AppError";
 import httpStatus from "http-status";
+import { paginationHelper } from "../../../helpers/paginationHelper";
+import { IPaginationOptions } from "../../interfaces/pagination";
 
 const createReview = async (
   payload: { comment: string; rating: number; productId: string },
@@ -49,7 +51,9 @@ const getProductReviews = async (productId: string) => {
   return result;
 };
 
-const getUserReviews = async (user: JwtPayload) => {
+const getUserReviews = async (user: JwtPayload, options: IPaginationOptions) => {
+   const { page, limit, skip } = paginationHelper.calculatePagination(options);
+
   const userData = await prisma.user.findUniqueOrThrow({
     where: {
       email: user.email,
@@ -60,29 +64,63 @@ const getUserReviews = async (user: JwtPayload) => {
     where: {
       userId: userData.id,
     },
+    skip,
+    take: limit,
     include: {
       user: true,
       product: true,
     },
   });
 
-  return result;
+  const total = await prisma.review.count({
+    where: {
+      userId: userData.id,
+    }
+  })
+
+  return {
+    meta: {
+      page,
+      limit,
+      total,
+    },
+    data: result,
+  };
 };
 
-const getShopProductReviews = async (shopId: string) => {
+const getShopProductReviews = async (shopId: string, options: IPaginationOptions) => {
+  const { page, limit, skip } = paginationHelper.calculatePagination(options);
+
   const result = await prisma.review.findMany({
     where: {
       product: {
         shopId,
       },
     },
+    skip,
+    take: limit,
     include: {
       user: true,
       product: true,
     },
   });
 
-  return result;
+  const total = await prisma.review.count({
+    where: {
+      product: {
+        shopId,
+      },
+    },
+  })
+
+  return {
+    meta: {
+      page,
+      limit,
+      total,
+    },
+    data: result,
+  };
 };
 
 const updateReview = async (
