@@ -9,9 +9,10 @@ const signUp = catchAsync(async (req, res) => {
   const { refreshToken, accessToken } = result;
 
   res.cookie("refreshToken", refreshToken, {
-    secure: false,
+    secure: true,
     httpOnly: true,
-    sameSite: "lax"
+    sameSite: "none",
+    maxAge: 1000 * 60 * 60 * 24 * 30,
   });
 
   sendResponse(res, {
@@ -30,8 +31,10 @@ const login = catchAsync(async (req, res) => {
   const { refreshToken, accessToken } = result;
 
   res.cookie("refreshToken", refreshToken, {
-    secure: false,
+    secure: true,
     httpOnly: true,
+    sameSite: "none",
+    maxAge: 1000 * 60 * 60 * 24 * 30,
   });
 
   sendResponse(res, {

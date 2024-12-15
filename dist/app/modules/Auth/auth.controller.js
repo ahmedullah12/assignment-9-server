@@ -21,9 +21,10 @@ const signUp = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0,
     const result = yield auth_service_1.AuthServices.signUp(req);
     const { refreshToken, accessToken } = result;
     res.cookie("refreshToken", refreshToken, {
-        secure: false,
+        secure: true,
         httpOnly: true,
-        sameSite: "lax"
+        sameSite: "none",
+        maxAge: 1000 * 60 * 60 * 24 * 30,
     });
     (0, sendResponse_1.default)(res, {
         statusCode: http_status_1.default.CREATED,
@@ -38,8 +39,10 @@ const login = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, 
     const result = yield auth_service_1.AuthServices.login(req.body);
     const { refreshToken, accessToken } = result;
     res.cookie("refreshToken", refreshToken, {
-        secure: false,
+        secure: true,
         httpOnly: true,
+        sameSite: "none",
+        maxAge: 1000 * 60 * 60 * 24 * 30,
     });
     (0, sendResponse_1.default)(res, {
         statusCode: http_status_1.default.OK,
