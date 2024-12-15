@@ -55,7 +55,6 @@ const getVendorShop = catchAsync(async (req, res) => {
 });
 
 const updateShop = catchAsync(async (req, res) => {
-
   const result = await ShopServices.updateShop(req.user, req.body, req.file);
 
   sendResponse(res, {
@@ -79,6 +78,19 @@ const deleteShop = catchAsync(async (req, res) => {
   });
 });
 
+const blacklistShop = catchAsync(async (req, res) => {
+  const { shopId } = req.params;
+
+  const result = await ShopServices.blacklistShop(shopId);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Shop blacklisted successfully!!",
+    data: result,
+  });
+});
+
 export const ShopController = {
     createShop,
     getAllShop,
@@ -86,4 +98,5 @@ export const ShopController = {
     getVendorShop,
     updateShop,
     deleteShop,
+    blacklistShop,
 }

@@ -49,6 +49,11 @@ const createProduct = (req) => __awaiter(void 0, void 0, void 0, function* () {
     if (!userData.shop) {
         throw new AppError_1.default(http_status_1.default.BAD_REQUEST, "Please create a shop first!!");
     }
+    //check if shop is blacklisted or deleted
+    if (userData.shop.status === client_1.ShopStatus.DELETED ||
+        userData.shop.status === client_1.ShopStatus.BLACKLISTED) {
+        throw new AppError_1.default(http_status_1.default.BAD_REQUEST, "You shop is deleted or blacklisted!!");
+    }
     const images = files === null || files === void 0 ? void 0 : files.map((file) => file.path);
     //check if at least one image is there
     if (!images || images.length === 0) {
@@ -176,6 +181,9 @@ const getVendorsProducts = (shopId, options) => __awaiter(void 0, void 0, void 0
     const result = yield prisma_1.default.product.findMany({
         where: {
             shopId,
+            shop: {
+                status: client_1.ShopStatus.ACTIVE
+            }
         },
         skip,
         take: limit,
@@ -199,14 +207,17 @@ const getFlashSaleProducts = (options) => __awaiter(void 0, void 0, void 0, func
     const result = yield prisma_1.default.product.findMany({
         where: {
             isFlashSale: true,
+            shop: {
+                status: client_1.ShopStatus.ACTIVE
+            }
         },
         skip,
         take: limit,
     });
     const total = yield prisma_1.default.product.count({
         where: {
-            isFlashSale: true
-        }
+            isFlashSale: true,
+        },
     });
     return {
         meta: {
@@ -221,6 +232,9 @@ const getSingleProduct = (id) => __awaiter(void 0, void 0, void 0, function* () 
     const result = yield prisma_1.default.product.findUniqueOrThrow({
         where: {
             id,
+            shop: {
+                status: client_1.ShopStatus.ACTIVE
+            }
         },
         include: {
             shop: true,

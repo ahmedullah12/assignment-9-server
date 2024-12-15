@@ -58,6 +58,10 @@ const getAllShop = async (options: IPaginationOptions) => {
   const result = await prisma.shop.findMany({
     skip,
     take: limit,
+    include: {
+      vendor: true,
+      products: true,
+    }
   });
 
   const total = await prisma.shop.count();
@@ -186,12 +190,12 @@ const blacklistShop = async (shopId: string) => {
     },
   });
 
-  const newStatus =
-    shop.status === ShopStatus.BLACKLISTED
-      ? ShopStatus.ACTIVE
-      : ShopStatus.BLACKLISTED;
+  const isCurrentlyBlacklisted = shop.status === ShopStatus.BLACKLISTED;
+  const newStatus = isCurrentlyBlacklisted
+    ? ShopStatus.ACTIVE
+    : ShopStatus.BLACKLISTED;
 
-  const result = await prisma.shop.update({
+  await prisma.shop.update({
     where: {
       id: shopId,
     },
@@ -200,7 +204,10 @@ const blacklistShop = async (shopId: string) => {
     },
   });
 
-  return result;
+  // Return a message based on the new status
+  return isCurrentlyBlacklisted
+    ? { message: "The shop has been activated and is now active." }
+    : { message: "The shop has been blacklisted." };
 };
 
 export const ShopServices = {

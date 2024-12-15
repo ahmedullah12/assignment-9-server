@@ -18,5 +18,6 @@ router.get("/", (0, auth_1.default)(client_1.UserRole.ADMIN), shop_controller_1.
 router.get("/user-shop", (0, auth_1.default)(client_1.UserRole.ADMIN, client_1.UserRole.VENDOR), shop_controller_1.ShopController.getVendorShop);
 router.get("/:shopId", shop_controller_1.ShopController.getSingleShopWithId);
 router.put("/", (0, auth_1.default)(client_1.UserRole.VENDOR), multer_config_1.multerUpload.single("logo"), bodyParser_1.parseBody, shop_controller_1.ShopController.updateShop);
+router.put("/blacklist-shop/:shopId", shop_controller_1.ShopController.blacklistShop);
 router.delete("/:shopId", shop_controller_1.ShopController.deleteShop);
 exports.ShopRoutes = router;

@@ -17,6 +17,7 @@ const http_status_1 = __importDefault(require("http-status"));
 const catchAsync_1 = __importDefault(require("../../../shared/catchAsync"));
 const sendResponse_1 = __importDefault(require("../../../shared/sendResponse"));
 const shop_service_1 = require("./shop.service");
+const pick_1 = __importDefault(require("../../../shared/pick"));
 const createShop = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const result = yield shop_service_1.ShopServices.createShop(req.user, req.body, req.file);
     (0, sendResponse_1.default)(res, {
@@ -27,7 +28,8 @@ const createShop = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, voi
     });
 }));
 const getAllShop = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const result = yield shop_service_1.ShopServices.getAllShop();
+    const options = (0, pick_1.default)(req.query, ["limit", "page"]);
+    const result = yield shop_service_1.ShopServices.getAllShop(options);
     (0, sendResponse_1.default)(res, {
         statusCode: http_status_1.default.OK,
         success: true,
@@ -74,6 +76,16 @@ const deleteShop = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, voi
         data: result,
     });
 }));
+const blacklistShop = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { shopId } = req.params;
+    const result = yield shop_service_1.ShopServices.blacklistShop(shopId);
+    (0, sendResponse_1.default)(res, {
+        statusCode: http_status_1.default.OK,
+        success: true,
+        message: "Shop blacklisted successfully!!",
+        data: result,
+    });
+}));
 exports.ShopController = {
     createShop,
     getAllShop,
@@ -81,4 +93,5 @@ exports.ShopController = {
     getVendorShop,
     updateShop,
     deleteShop,
+    blacklistShop,
 };

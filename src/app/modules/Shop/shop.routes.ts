@@ -34,6 +34,7 @@ router.put(
   parseBody,
   ShopController.updateShop
 );
+router.put("/blacklist-shop/:shopId", ShopController.blacklistShop);
 router.delete("/:shopId", ShopController.deleteShop);
 
 export const ShopRoutes = router;

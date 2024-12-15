@@ -17,6 +17,7 @@ const client_1 = require("@prisma/client");
 const prisma_1 = __importDefault(require("../../../shared/prisma"));
 const AppError_1 = __importDefault(require("../../errors/AppError"));
 const http_status_1 = __importDefault(require("http-status"));
+const paginationHelper_1 = require("../../../helpers/paginationHelper");
 const createShop = (user, payload, file) => __awaiter(void 0, void 0, void 0, function* () {
     //checking if user is a vendor
     if (user.role !== client_1.UserRole.VENDOR) {
@@ -47,9 +48,25 @@ const createShop = (user, payload, file) => __awaiter(void 0, void 0, void 0, fu
     });
     return result;
 });
-const getAllShop = () => __awaiter(void 0, void 0, void 0, function* () {
-    const result = yield prisma_1.default.shop.findMany();
-    return result;
+const getAllShop = (options) => __awaiter(void 0, void 0, void 0, function* () {
+    const { page, limit, skip } = paginationHelper_1.paginationHelper.calculatePagination(options);
+    const result = yield prisma_1.default.shop.findMany({
+        skip,
+        take: limit,
+        include: {
+            vendor: true,
+            products: true,
+        }
+    });
+    const total = yield prisma_1.default.shop.count();
+    return {
+        meta: {
+            page,
+            limit,
+            total,
+        },
+        data: result,
+    };
 });
 const getSingleShopWithId = (shopId) => __awaiter(void 0, void 0, void 0, function* () {
     const result = yield prisma_1.default.shop.findUnique({
@@ -63,26 +80,26 @@ const getSingleShopWithId = (shopId) => __awaiter(void 0, void 0, void 0, functi
             followShop: {
                 include: {
                     user: true,
-                }
-            }
-        }
+                },
+            },
+        },
     });
     return result;
 });
 const getVendorShop = (user) => __awaiter(void 0, void 0, void 0, function* () {
     const userData = yield prisma_1.default.user.findUniqueOrThrow({
         where: {
-            email: user.email
-        }
+            email: user.email,
+        },
     });
     const result = yield prisma_1.default.shop.findUniqueOrThrow({
         where: {
-            vendorId: userData.id
+            vendorId: userData.id,
         },
         include: {
             vendor: true,
-            products: true
-        }
+            products: true,
+        },
     });
     return result;
 });
@@ -132,10 +149,36 @@ const deleteShop = (shopId) => __awaiter(void 0, void 0, void 0, function* () {
             id: shopId,
         },
         data: {
-            status: client_1.UserStatus.DELETED,
+            status: client_1.ShopStatus.DELETED,
         },
     });
     return result;
+});
+const blacklistShop = (shopId) => __awaiter(void 0, void 0, void 0, function* () {
+    const shop = yield prisma_1.default.shop.findUniqueOrThrow({
+        where: {
+            id: shopId,
+        },
+        select: {
+            status: true,
+        },
+    });
+    const isCurrentlyBlacklisted = shop.status === client_1.ShopStatus.BLACKLISTED;
+    const newStatus = isCurrentlyBlacklisted
+        ? client_1.ShopStatus.ACTIVE
+        : client_1.ShopStatus.BLACKLISTED;
+    yield prisma_1.default.shop.update({
+        where: {
+            id: shopId,
+        },
+        data: {
+            status: newStatus,
+        },
+    });
+    // Return a message based on the new status
+    return isCurrentlyBlacklisted
+        ? { message: "The shop has been activated and is now active." }
+        : { message: "The shop has been blacklisted." };
 });
 exports.ShopServices = {
     createShop,
@@ -144,4 +187,5 @@ exports.ShopServices = {
     getVendorShop,
     updateShop,
     deleteShop,
+    blacklistShop,
 };
