@@ -24,13 +24,13 @@ server-side: https://assignment-9-server-kappa.vercel.app
 to run the application first you have to install the packages
 
 ```
-    yarn install
+yarn install
 ```
 
 to run the application using ts-node-dev
 
 ```
-yarn  start:dev
+yarn dev
 ```
 
 
