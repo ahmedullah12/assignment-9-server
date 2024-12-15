@@ -22,7 +22,7 @@ const auth = (...roles: string[]) => {
       try {
         decoded = verifyToken(token, config.access_token_secret as Secret);
       } catch (err) {
-        throw new AppError(httpStatus.UNAUTHORIZED, "Unauthorized22");
+        throw new AppError(httpStatus.UNAUTHORIZED, "Unauthorized");
       }
 
       req.user = decoded;

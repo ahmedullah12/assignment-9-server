@@ -16,55 +16,76 @@ exports.CategoryServices = void 0;
 const http_status_1 = __importDefault(require("http-status"));
 const prisma_1 = __importDefault(require("../../../shared/prisma"));
 const AppError_1 = __importDefault(require("../../errors/AppError"));
+const paginationHelper_1 = require("../../../helpers/paginationHelper");
 const createCategory = (payload) => __awaiter(void 0, void 0, void 0, function* () {
     const isCategoryNameExists = yield prisma_1.default.category.findUnique({
         where: {
-            name: payload.name
-        }
+            name: payload.name,
+        },
     });
     if (isCategoryNameExists) {
         throw new AppError_1.default(http_status_1.default.BAD_REQUEST, "Category already exists!!");
     }
     const result = yield prisma_1.default.category.create({
-        data: payload
+        data: payload,
     });
     return result;
 });
-const getAllCategory = () => __awaiter(void 0, void 0, void 0, function* () {
-    const result = yield prisma_1.default.category.findMany();
-    return result;
+const getAllCategory = (options) => __awaiter(void 0, void 0, void 0, function* () {
+    const { page, limit, skip } = paginationHelper_1.paginationHelper.calculatePagination(options);
+    const result = yield prisma_1.default.category.findMany({
+        skip,
+        take: limit,
+    });
+    const total = yield prisma_1.default.category.count();
+    return {
+        meta: {
+            page,
+            limit,
+            total,
+        },
+        data: result,
+    };
 });
 const getSingleCategory = (categoryId) => __awaiter(void 0, void 0, void 0, function* () {
     const result = yield prisma_1.default.category.findUniqueOrThrow({
         where: {
-            id: categoryId
-        }
+            id: categoryId,
+        },
     });
     return result;
 });
 const updateCategory = (categoryId, payload) => __awaiter(void 0, void 0, void 0, function* () {
     const isCategoryNameExists = yield prisma_1.default.category.findUnique({
         where: {
-            name: payload.name
-        }
+            name: payload.name,
+        },
     });
     if (isCategoryNameExists) {
         throw new AppError_1.default(http_status_1.default.BAD_REQUEST, "Category already exists!!");
     }
     const result = yield prisma_1.default.category.update({
         where: {
-            id: categoryId
+            id: categoryId,
         },
-        data: payload
+        data: payload,
     });
     return result;
 });
 const deleteCategory = (categoryId) => __awaiter(void 0, void 0, void 0, function* () {
-    const result = yield prisma_1.default.category.delete({
-        where: {
-            id: categoryId,
-        }
-    });
+    const result = yield prisma_1.default.$transaction((transactionClient) => __awaiter(void 0, void 0, void 0, function* () {
+        yield transactionClient.productCategory.deleteMany({
+            where: {
+                categoryId,
+            },
+        });
+        const result = yield transactionClient.category.delete({
+            where: {
+                id: categoryId,
+            },
+        });
+        return result;
+    }));
     return result;
 });
 exports.CategoryServices = {

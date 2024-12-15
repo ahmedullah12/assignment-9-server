@@ -28,7 +28,7 @@ const auth = (...roles) => {
                 decoded = (0, jwtHelpers_1.verifyToken)(token, config_1.default.access_token_secret);
             }
             catch (err) {
-                throw new AppError_1.default(http_status_1.default.UNAUTHORIZED, "Unauthorized22");
+                throw new AppError_1.default(http_status_1.default.UNAUTHORIZED, "Unauthorized");
             }
             req.user = decoded;
             if (roles.length && !roles.includes(decoded.role)) {
