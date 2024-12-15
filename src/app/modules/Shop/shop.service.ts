@@ -5,6 +5,8 @@ import AppError from "../../errors/AppError";
 import httpStatus from "http-status";
 import { IFile } from "../../interfaces/file";
 import { ICreateShop, IUpdateShop } from "./shop.interface";
+import { IPaginationOptions } from "../../interfaces/pagination";
+import { paginationHelper } from "../../../helpers/paginationHelper";
 
 const createShop = async (
   user: JwtPayload,
@@ -50,10 +52,24 @@ const createShop = async (
   return result;
 };
 
-const getAllShop = async () => {
-  const result = await prisma.shop.findMany();
+const getAllShop = async (options: IPaginationOptions) => {
+  const { page, limit, skip } = paginationHelper.calculatePagination(options);
 
-  return result;
+  const result = await prisma.shop.findMany({
+    skip,
+    take: limit,
+  });
+
+  const total = await prisma.shop.count();
+
+  return {
+    meta: {
+      page,
+      limit,
+      total,
+    },
+    data: result,
+  };
 };
 
 const getSingleShopWithId = async (shopId: string) => {
@@ -68,33 +84,33 @@ const getSingleShopWithId = async (shopId: string) => {
       followShop: {
         include: {
           user: true,
-        }
-      }
-    }
+        },
+      },
+    },
   });
 
   return result;
 };
 
-const getVendorShop = async(user: JwtPayload) => {
+const getVendorShop = async (user: JwtPayload) => {
   const userData = await prisma.user.findUniqueOrThrow({
     where: {
-      email: user.email
-    }
+      email: user.email,
+    },
   });
 
   const result = await prisma.shop.findUniqueOrThrow({
     where: {
-      vendorId: userData.id
+      vendorId: userData.id,
     },
     include: {
       vendor: true,
-      products: true
-    }
+      products: true,
+    },
   });
 
   return result;
-}
+};
 
 const updateShop = async (
   user: JwtPayload,
@@ -147,14 +163,40 @@ const updateShop = async (
   return result;
 };
 
-
 const deleteShop = async (shopId: string) => {
   const result = await prisma.shop.update({
     where: {
       id: shopId,
     },
     data: {
-      status: UserStatus.DELETED,
+      status: ShopStatus.DELETED,
+    },
+  });
+
+  return result;
+};
+
+const blacklistShop = async (shopId: string) => {
+  const shop = await prisma.shop.findUniqueOrThrow({
+    where: {
+      id: shopId,
+    },
+    select: {
+      status: true,
+    },
+  });
+
+  const newStatus =
+    shop.status === ShopStatus.BLACKLISTED
+      ? ShopStatus.ACTIVE
+      : ShopStatus.BLACKLISTED;
+
+  const result = await prisma.shop.update({
+    where: {
+      id: shopId,
+    },
+    data: {
+      status: newStatus,
     },
   });
 
@@ -168,4 +210,5 @@ export const ShopServices = {
   getVendorShop,
   updateShop,
   deleteShop,
+  blacklistShop,
 };

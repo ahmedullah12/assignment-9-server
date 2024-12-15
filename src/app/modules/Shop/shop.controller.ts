@@ -2,6 +2,7 @@ import httpStatus from "http-status";
 import catchAsync from "../../../shared/catchAsync";
 import sendResponse from "../../../shared/sendResponse";
 import { ShopServices } from "./shop.service";
+import pick from "../../../shared/pick";
 
 const createShop = catchAsync(async (req, res) => {
   const result = await ShopServices.createShop(req.user, req.body, req.file);
@@ -15,7 +16,9 @@ const createShop = catchAsync(async (req, res) => {
 });
 
 const getAllShop = catchAsync(async (req, res) => {
-  const result = await ShopServices.getAllShop();
+  const options = pick(req.query, ["limit", "page"]);
+
+  const result = await ShopServices.getAllShop(options);
 
   sendResponse(res, {
     statusCode: httpStatus.OK,

@@ -1,6 +1,6 @@
 import { Request } from "express";
 import prisma from "../../../shared/prisma";
-import { Prisma, UserRole, UserStatus } from "@prisma/client";
+import { Prisma, ShopStatus, UserRole, UserStatus } from "@prisma/client";
 import AppError from "../../errors/AppError";
 import httpStatus from "http-status";
 import { IFile } from "../../interfaces/file";
@@ -36,6 +36,17 @@ const createProduct = async (req: Request) => {
   //check if user has a shop or not
   if (!userData.shop) {
     throw new AppError(httpStatus.BAD_REQUEST, "Please create a shop first!!");
+  }
+
+  //check if shop is blacklisted or deleted
+  if (
+    userData.shop.status === ShopStatus.DELETED ||
+    userData.shop.status === ShopStatus.BLACKLISTED
+  ) {
+    throw new AppError(
+      httpStatus.BAD_REQUEST,
+      "You shop is deleted or blacklisted!!"
+    );
   }
 
   const images = files?.map((file: IFile) => file.path);
@@ -196,6 +207,9 @@ const getVendorsProducts = async (
   const result = await prisma.product.findMany({
     where: {
       shopId,
+      shop: {
+        status: ShopStatus.ACTIVE
+      }
     },
     skip,
     take: limit,
@@ -205,7 +219,7 @@ const getVendorsProducts = async (
     where: {
       shopId,
     },
-  })
+  });
 
   return {
     meta: {
@@ -223,6 +237,9 @@ const getFlashSaleProducts = async (options: IPaginationOptions) => {
   const result = await prisma.product.findMany({
     where: {
       isFlashSale: true,
+      shop: {
+        status: ShopStatus.ACTIVE
+      }
     },
     skip,
     take: limit,
@@ -230,9 +247,9 @@ const getFlashSaleProducts = async (options: IPaginationOptions) => {
 
   const total = await prisma.product.count({
     where: {
-      isFlashSale: true
-    }
-  })
+      isFlashSale: true,
+    },
+  });
 
   return {
     meta: {
@@ -248,6 +265,9 @@ const getSingleProduct = async (id: string) => {
   const result = await prisma.product.findUniqueOrThrow({
     where: {
       id,
+      shop: {
+        status: ShopStatus.ACTIVE
+      }
     },
     include: {
       shop: true,
