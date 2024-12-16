@@ -165,7 +165,7 @@ const getAllProduct = (params, options) => __awaiter(void 0, void 0, void 0, fun
         },
     });
     const total = yield prisma_1.default.product.count({
-        where: whereConditions,
+        where: Object.assign(Object.assign({}, whereConditions), { shop: { status: client_1.ShopStatus.ACTIVE } }),
     });
     return {
         meta: {
@@ -182,8 +182,8 @@ const getVendorsProducts = (shopId, options) => __awaiter(void 0, void 0, void 0
         where: {
             shopId,
             shop: {
-                status: client_1.ShopStatus.ACTIVE
-            }
+                status: client_1.ShopStatus.ACTIVE,
+            },
         },
         skip,
         take: limit,
@@ -208,8 +208,8 @@ const getFlashSaleProducts = (options) => __awaiter(void 0, void 0, void 0, func
         where: {
             isFlashSale: true,
             shop: {
-                status: client_1.ShopStatus.ACTIVE
-            }
+                status: client_1.ShopStatus.ACTIVE,
+            },
         },
         skip,
         take: limit,
@@ -233,8 +233,8 @@ const getSingleProduct = (id) => __awaiter(void 0, void 0, void 0, function* () 
         where: {
             id,
             shop: {
-                status: client_1.ShopStatus.ACTIVE
-            }
+                status: client_1.ShopStatus.ACTIVE,
+            },
         },
         include: {
             shop: true,
@@ -258,9 +258,15 @@ const duplicateProduct = (id) => __awaiter(void 0, void 0, void 0, function* () 
         where: { id },
         include: {
             productCategory: true,
+            shop: true,
         },
     });
-    const { name, description, inventoryCount, price, images, discount, flashSalePrice, isFlashSale, shopId, } = originalProduct;
+    const { name, description, inventoryCount, price, images, discount, flashSalePrice, isFlashSale, shopId, shop, } = originalProduct;
+    //check if shop is blacklisted or deleted
+    if (shop.status === client_1.ShopStatus.DELETED ||
+        shop.status === client_1.ShopStatus.BLACKLISTED) {
+        throw new AppError_1.default(http_status_1.default.BAD_REQUEST, "You shop is deleted or blacklisted!!");
+    }
     const newProductData = {
         name,
         description,

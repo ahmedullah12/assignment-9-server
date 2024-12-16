@@ -62,12 +62,16 @@ const signUp = async (req: Request) => {
 };
 
 const login = async (payload: { email: string; password: string }) => {
-  const userData = await prisma.user.findUniqueOrThrow({
+  const userData = await prisma.user.findUnique({
     where: {
       email: payload.email,
       status: UserStatus.ACTIVE,
     },
   });
+
+  if (!userData) {
+    throw new AppError(httpStatus.NOT_FOUND, "User not found!!");
+  }
 
   const isPasswordCorrect = await bcrypt.compare(
     payload.password,
@@ -105,82 +109,85 @@ const login = async (payload: { email: string; password: string }) => {
 const refreshToken = async (token: string) => {
   let decodedData;
   try {
-      decodedData = verifyToken(token, config.refresh_token_secret as Secret);
-  }
-  catch (err) {
-      throw new Error("You are not authorized!")
+    decodedData = verifyToken(token, config.refresh_token_secret as Secret);
+  } catch (err) {
+    throw new Error("You are not authorized!");
   }
 
   const userData = await prisma.user.findUniqueOrThrow({
-      where: {
-          email: decodedData.email,
-          status: UserStatus.ACTIVE
-      }
+    where: {
+      email: decodedData.email,
+      status: UserStatus.ACTIVE,
+    },
   });
 
-  const accessToken = generateJwtToken({
+  const accessToken = generateJwtToken(
+    {
       email: userData.email,
-      role: userData.role
-  },
-      config.access_token_secret as Secret,
-      config.access_token_expires_in as string
+      role: userData.role,
+    },
+    config.access_token_secret as Secret,
+    config.access_token_expires_in as string
   );
 
   return {
-      accessToken,
+    accessToken,
   };
-
 };
 
 const changePassword = async (user: any, payload: any) => {
   const userData = await prisma.user.findUniqueOrThrow({
-      where: {
-          email: user.email,
-          status: UserStatus.ACTIVE
-      }
+    where: {
+      email: user.email,
+      status: UserStatus.ACTIVE,
+    },
   });
 
-  const isCorrectPassword: boolean = await bcrypt.compare(payload.oldPassword, userData.password);
+  const isCorrectPassword: boolean = await bcrypt.compare(
+    payload.oldPassword,
+    userData.password
+  );
 
   if (!isCorrectPassword) {
-      throw new AppError(httpStatus.FORBIDDEN, "Password is incorrect!!")
+    throw new AppError(httpStatus.FORBIDDEN, "Password is incorrect!!");
   }
 
   const hashedPassword: string = await bcrypt.hash(payload.newPassword, 12);
 
   await prisma.user.update({
-      where: {
-          email: userData.email
-      },
-      data: {
-          password: hashedPassword,
-      }
-  })
+    where: {
+      email: userData.email,
+    },
+    data: {
+      password: hashedPassword,
+    },
+  });
 
   return {
-      message: "Password changed successfully!"
-  }
+    message: "Password changed successfully!",
+  };
 };
 
 const forgotPassword = async (payload: { email: string }) => {
   const userData = await prisma.user.findUniqueOrThrow({
-      where: {
-          email: payload.email,
-          status: UserStatus.ACTIVE
-      }
+    where: {
+      email: payload.email,
+      status: UserStatus.ACTIVE,
+    },
   });
 
   const resetPassToken = generateJwtToken(
-      { email: userData.email, role: userData.role },
-      config.reset_pass_secret as Secret,
-      config.reset_pass_token_expires_in as string
-  )
+    { email: userData.email, role: userData.role },
+    config.reset_pass_secret as Secret,
+    config.reset_pass_token_expires_in as string
+  );
 
-  const resetPassLink = config.reset_pass_link + `?userId=${userData.id}&token=${resetPassToken}`
+  const resetPassLink =
+    config.reset_pass_link + `?userId=${userData.id}&token=${resetPassToken}`;
 
   await emailSender(
-      userData.email,
-      `
+    userData.email,
+    `
       <div>
           <p>Dear User,</p>
           <p>Your password reset link 
@@ -193,23 +200,25 @@ const forgotPassword = async (payload: { email: string }) => {
 
       </div>
       `
-  )
+  );
   //console.log(resetPassLink)
 };
 
-const resetPassword = async (token: string, payload: { id: string, password: string }) => {
-
+const resetPassword = async (
+  token: string,
+  payload: { id: string; password: string }
+) => {
   const userData = await prisma.user.findUniqueOrThrow({
-      where: {
-          id: payload.id,
-          status: UserStatus.ACTIVE
-      }
+    where: {
+      id: payload.id,
+      status: UserStatus.ACTIVE,
+    },
   });
 
-  const isValidToken = verifyToken(token, config.reset_pass_secret as Secret)
+  const isValidToken = verifyToken(token, config.reset_pass_secret as Secret);
 
   if (!isValidToken) {
-      throw new AppError(httpStatus.FORBIDDEN, "Forbidden!")
+    throw new AppError(httpStatus.FORBIDDEN, "Forbidden!");
   }
 
   // hash password
@@ -217,13 +226,13 @@ const resetPassword = async (token: string, payload: { id: string, password: str
 
   // update into database
   await prisma.user.update({
-      where: {
-          id: payload.id
-      },
-      data: {
-          password
-      }
-  })
+    where: {
+      id: payload.id,
+    },
+    data: {
+      password,
+    },
+  });
 };
 
 export const AuthServices = {

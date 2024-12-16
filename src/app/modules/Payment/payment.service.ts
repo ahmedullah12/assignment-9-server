@@ -50,7 +50,7 @@ const confirmationService = async (
     return `
       <html>
         <script>
-          window.location.href = 'http://localhost:3000/checkout/success';
+          window.location.href = 'https://shop-sagaa.netlify.app/checkout/success';
         </script>
       </html>
     `;

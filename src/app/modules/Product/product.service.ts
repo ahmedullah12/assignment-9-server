@@ -185,7 +185,7 @@ const getAllProduct = async (
   });
 
   const total = await prisma.product.count({
-    where: whereConditions,
+    where: { ...whereConditions, shop: { status: ShopStatus.ACTIVE } },
   });
 
   return {
@@ -208,8 +208,8 @@ const getVendorsProducts = async (
     where: {
       shopId,
       shop: {
-        status: ShopStatus.ACTIVE
-      }
+        status: ShopStatus.ACTIVE,
+      },
     },
     skip,
     take: limit,
@@ -238,8 +238,8 @@ const getFlashSaleProducts = async (options: IPaginationOptions) => {
     where: {
       isFlashSale: true,
       shop: {
-        status: ShopStatus.ACTIVE
-      }
+        status: ShopStatus.ACTIVE,
+      },
     },
     skip,
     take: limit,
@@ -266,8 +266,8 @@ const getSingleProduct = async (id: string) => {
     where: {
       id,
       shop: {
-        status: ShopStatus.ACTIVE
-      }
+        status: ShopStatus.ACTIVE,
+      },
     },
     include: {
       shop: true,
@@ -293,6 +293,7 @@ const duplicateProduct = async (id: string) => {
     where: { id },
     include: {
       productCategory: true,
+      shop: true,
     },
   });
 
@@ -306,7 +307,19 @@ const duplicateProduct = async (id: string) => {
     flashSalePrice,
     isFlashSale,
     shopId,
+    shop,
   } = originalProduct;
+
+  //check if shop is blacklisted or deleted
+  if (
+    shop.status === ShopStatus.DELETED ||
+    shop.status === ShopStatus.BLACKLISTED
+  ) {
+    throw new AppError(
+      httpStatus.BAD_REQUEST,
+      "You shop is deleted or blacklisted!!"
+    );
+  }
 
   const newProductData = {
     name,
