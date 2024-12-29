@@ -75,6 +75,32 @@ const getAllShop = async (options: IPaginationOptions) => {
     data: result,
   };
 };
+const getAllActiveShop = async (options: IPaginationOptions) => {
+  const { page, limit, skip } = paginationHelper.calculatePagination(options);
+
+  const result = await prisma.shop.findMany({
+    where: {
+      status: ShopStatus.ACTIVE,
+    },
+    skip,
+    take: limit,
+    include: {
+      vendor: true,
+      products: true,
+    }
+  });
+
+  const total = await prisma.shop.count();
+
+  return {
+    meta: {
+      page,
+      limit,
+      total,
+    },
+    data: result,
+  };
+};
 
 const getSingleShopWithId = async (shopId: string) => {
   const result = await prisma.shop.findUnique({
@@ -213,6 +239,7 @@ const blacklistShop = async (shopId: string) => {
 export const ShopServices = {
   createShop,
   getAllShop,
+  getAllActiveShop,
   getSingleShopWithId,
   getVendorShop,
   updateShop,

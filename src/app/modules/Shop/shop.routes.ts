@@ -17,7 +17,8 @@ router.post(
   validateRequest(ShopValidations.createShopValidationSchema),
   ShopController.createShop
 );
-router.get("/", auth(UserRole.ADMIN), ShopController.getAllShop);
+router.get("/",auth(UserRole.ADMIN), ShopController.getAllShop);
+router.get("/active-shops", ShopController.getAllActiveShop);
 router.get(
   "/user-shop",
   auth(UserRole.ADMIN, UserRole.VENDOR),

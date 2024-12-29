@@ -68,6 +68,29 @@ const getAllShop = (options) => __awaiter(void 0, void 0, void 0, function* () {
         data: result,
     };
 });
+const getAllActiveShop = (options) => __awaiter(void 0, void 0, void 0, function* () {
+    const { page, limit, skip } = paginationHelper_1.paginationHelper.calculatePagination(options);
+    const result = yield prisma_1.default.shop.findMany({
+        where: {
+            status: client_1.ShopStatus.ACTIVE,
+        },
+        skip,
+        take: limit,
+        include: {
+            vendor: true,
+            products: true,
+        }
+    });
+    const total = yield prisma_1.default.shop.count();
+    return {
+        meta: {
+            page,
+            limit,
+            total,
+        },
+        data: result,
+    };
+});
 const getSingleShopWithId = (shopId) => __awaiter(void 0, void 0, void 0, function* () {
     const result = yield prisma_1.default.shop.findUnique({
         where: {
@@ -183,6 +206,7 @@ const blacklistShop = (shopId) => __awaiter(void 0, void 0, void 0, function* ()
 exports.ShopServices = {
     createShop,
     getAllShop,
+    getAllActiveShop,
     getSingleShopWithId,
     getVendorShop,
     updateShop,

@@ -19,7 +19,6 @@ router.delete("/:id", UserController.deleteUser);
 router.delete("/suspend-user/:id", UserController.suspendUser);
 router.put(
   "/follow-shop/:shopId",
-  auth(UserRole.CUSTOMER),
   UserController.followShop
 );
 

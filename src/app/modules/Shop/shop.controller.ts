@@ -28,6 +28,19 @@ const getAllShop = catchAsync(async (req, res) => {
   });
 });
 
+const getAllActiveShop = catchAsync(async (req, res) => {
+  const options = pick(req.query, ["limit", "page"]);
+
+  const result = await ShopServices.getAllActiveShop(options);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Shops fetched successfully!!",
+    data: result,
+  });
+});
+
 const getSingleShopWithId = catchAsync(async (req, res) => {
   const { shopId } = req.params;
 
@@ -94,6 +107,7 @@ const blacklistShop = catchAsync(async (req, res) => {
 export const ShopController = {
     createShop,
     getAllShop,
+    getAllActiveShop,
     getSingleShopWithId,
     getVendorShop,
     updateShop,

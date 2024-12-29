@@ -17,5 +17,5 @@ router.get("/:id", user_controller_1.UserController.getUserWithId);
 router.put("/:id", (0, validateRequest_1.validateRequest)(user_validations_1.UserValidations.updateUserValidationsSchema), user_controller_1.UserController.updateUser);
 router.delete("/:id", user_controller_1.UserController.deleteUser);
 router.delete("/suspend-user/:id", user_controller_1.UserController.suspendUser);
-router.put("/follow-shop/:shopId", (0, auth_1.default)(client_1.UserRole.CUSTOMER), user_controller_1.UserController.followShop);
+router.put("/follow-shop/:shopId", user_controller_1.UserController.followShop);
 exports.UserRoutes = router;

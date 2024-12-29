@@ -37,6 +37,16 @@ const getAllShop = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, voi
         data: result,
     });
 }));
+const getAllActiveShop = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const options = (0, pick_1.default)(req.query, ["limit", "page"]);
+    const result = yield shop_service_1.ShopServices.getAllActiveShop(options);
+    (0, sendResponse_1.default)(res, {
+        statusCode: http_status_1.default.OK,
+        success: true,
+        message: "Shops fetched successfully!!",
+        data: result,
+    });
+}));
 const getSingleShopWithId = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { shopId } = req.params;
     const result = yield shop_service_1.ShopServices.getSingleShopWithId(shopId);
@@ -89,6 +99,7 @@ const blacklistShop = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, 
 exports.ShopController = {
     createShop,
     getAllShop,
+    getAllActiveShop,
     getSingleShopWithId,
     getVendorShop,
     updateShop,
