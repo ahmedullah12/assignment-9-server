@@ -105,6 +105,8 @@ const getAllProduct = async (
   const { page, limit, skip } = paginationHelper.calculatePagination(options);
   const { searchTerm, price, category, ...filterData } = params;
 
+  console.log(price);
+
   const andConditions: Prisma.ProductWhereInput[] = [];
 
   // Filter for search
@@ -119,16 +121,27 @@ const getAllProduct = async (
     });
   }
 
-  // Filter for price range
+  
+
+  // filter for price
   if (price) {
-    const [minPrice, maxPrice] = (price as string).split("-").map(Number);
-    if (!isNaN(minPrice) && !isNaN(maxPrice)) {
-      andConditions.push({
-        price: {
-          gte: minPrice,
-          lte: maxPrice,
-        },
-      });
+    const [min, max] = (price as string).split("-");
+
+    const minPrice = min ? Number(min) : undefined;
+    const maxPrice = max ? Number(max) : undefined;
+
+    const priceCondition: Prisma.ProductWhereInput["price"] = {};
+
+    if (minPrice !== undefined && !isNaN(minPrice)) {
+      priceCondition.gte = minPrice;
+    }
+
+    if (maxPrice !== undefined && !isNaN(maxPrice)) {
+      priceCondition.lte = maxPrice;
+    }
+
+    if (Object.keys(priceCondition).length > 0) {
+      andConditions.push({ price: priceCondition });
     }
   }
 

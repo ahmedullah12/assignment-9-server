@@ -13,6 +13,7 @@ const user_validations_1 = require("./user.validations");
 const router = (0, express_1.Router)();
 router.get("/", (0, auth_1.default)(client_1.UserRole.ADMIN), user_controller_1.UserController.getAllUsers);
 router.get("/user-email", user_controller_1.UserController.getUserWithEmail);
+router.post("/subscribe-user", user_controller_1.UserController.userSubscribe);
 router.get("/:id", user_controller_1.UserController.getUserWithId);
 router.put("/:id", (0, validateRequest_1.validateRequest)(user_validations_1.UserValidations.updateUserValidationsSchema), user_controller_1.UserController.updateUser);
 router.delete("/:id", user_controller_1.UserController.deleteUser);

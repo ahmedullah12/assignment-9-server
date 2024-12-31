@@ -90,6 +90,17 @@ const followShop = catchAsync(async (req, res) => {
   });
 });
 
+const userSubscribe = catchAsync(async (req, res) => {
+  const result = await UserServices.userSubscribe(req.body);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Subscribed Successfully!!",
+    data: result
+  });
+});
+
 export const UserController = {
   getAllUsers,
   getUserWithEmail,
@@ -97,5 +108,6 @@ export const UserController = {
   updateUser,
   deleteUser,
   suspendUser,
-  followShop
+  followShop,
+  userSubscribe,
 };

@@ -88,6 +88,15 @@ const followShop = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, voi
         data: result
     });
 }));
+const userSubscribe = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const result = yield user_services_1.UserServices.userSubscribe(req.body);
+    (0, sendResponse_1.default)(res, {
+        statusCode: http_status_1.default.OK,
+        success: true,
+        message: "Subscribed Successfully!!",
+        data: result
+    });
+}));
 exports.UserController = {
     getAllUsers,
     getUserWithEmail,
@@ -95,5 +104,6 @@ exports.UserController = {
     updateUser,
     deleteUser,
     suspendUser,
-    followShop
+    followShop,
+    userSubscribe,
 };

@@ -212,6 +212,24 @@ const followShop = async (user: JwtPayload, shopId: string) => {
   }
 };
 
+const userSubscribe = async(payload: {email: string}) => {
+  const alreadyUser = await prisma.subscribedUser.findUnique({
+    where: {
+      email: payload.email
+    }
+  });
+
+  if(alreadyUser){
+    throw new AppError(httpStatus.BAD_REQUEST, "Already subscribed previously!!")
+  };
+
+  const result = await prisma.subscribedUser.create({
+    data: payload
+  });
+
+  return result;
+}
+
 export const UserServices = {
   getAllUsers,
   getUserWithEmail,
@@ -220,4 +238,5 @@ export const UserServices = {
   deleteUser,
   suspendUser,
   followShop,
+  userSubscribe
 };

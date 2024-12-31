@@ -201,6 +201,21 @@ const followShop = (user, shopId) => __awaiter(void 0, void 0, void 0, function*
         return { message: "Shop followed successfully", followed: true };
     }
 });
+const userSubscribe = (payload) => __awaiter(void 0, void 0, void 0, function* () {
+    const alreadyUser = yield prisma_1.default.subscribedUser.findUnique({
+        where: {
+            email: payload.email
+        }
+    });
+    if (alreadyUser) {
+        throw new AppError_1.default(http_status_1.default.BAD_REQUEST, "Already subscribed previously!!");
+    }
+    ;
+    const result = yield prisma_1.default.subscribedUser.create({
+        data: payload
+    });
+    return result;
+});
 exports.UserServices = {
     getAllUsers,
     getUserWithEmail,
@@ -209,4 +224,5 @@ exports.UserServices = {
     deleteUser,
     suspendUser,
     followShop,
+    userSubscribe
 };

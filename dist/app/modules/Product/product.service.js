@@ -94,6 +94,7 @@ const createProduct = (req) => __awaiter(void 0, void 0, void 0, function* () {
 const getAllProduct = (params, options) => __awaiter(void 0, void 0, void 0, function* () {
     const { page, limit, skip } = paginationHelper_1.paginationHelper.calculatePagination(options);
     const { searchTerm, price, category } = params, filterData = __rest(params, ["searchTerm", "price", "category"]);
+    console.log(price);
     const andConditions = [];
     // Filter for search
     if (searchTerm) {
@@ -106,16 +107,20 @@ const getAllProduct = (params, options) => __awaiter(void 0, void 0, void 0, fun
             })),
         });
     }
-    // Filter for price range
+    // filter for price
     if (price) {
-        const [minPrice, maxPrice] = price.split("-").map(Number);
-        if (!isNaN(minPrice) && !isNaN(maxPrice)) {
-            andConditions.push({
-                price: {
-                    gte: minPrice,
-                    lte: maxPrice,
-                },
-            });
+        const [min, max] = price.split("-");
+        const minPrice = min ? Number(min) : undefined;
+        const maxPrice = max ? Number(max) : undefined;
+        const priceCondition = {};
+        if (minPrice !== undefined && !isNaN(minPrice)) {
+            priceCondition.gte = minPrice;
+        }
+        if (maxPrice !== undefined && !isNaN(maxPrice)) {
+            priceCondition.lte = maxPrice;
+        }
+        if (Object.keys(priceCondition).length > 0) {
+            andConditions.push({ price: priceCondition });
         }
     }
     // Filter by categoryId (supporting multiple categories)
