@@ -15,6 +15,7 @@ model User {
   password      String
   profileImage  String?
   contactNumber String
+  address       String?
   role          UserRole
   status        UserStatus @default(ACTIVE)
   createdAt     DateTime   @default(now())
@@ -24,6 +25,7 @@ model User {
   followShop FollowShop[]
   reviews    Review[]
   payment    Payment[]
+  userCoupon UserCoupon[]
 
   @@map("users")
 }
@@ -155,6 +157,30 @@ model SubscribedUser {
   @@map("subscribed_users")
 }
 
+model Coupon {
+  id           String       @id @default(uuid())
+  couponNumber String       @unique
+  expiryDate   DateTime
+  discount     Int
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+  userCoupon   UserCoupon[]
+
+  @@map("coupons")
+}
+
+model UserCoupon {
+  couponId String
+  userId   String
+  status   UserCouponStatus @default(CLAIMED)
+
+  coupon Coupon @relation(fields: [couponId], references: [id])
+  user   User   @relation(fields: [userId], references: [id])
+
+  @@id([couponId, userId])
+  @@map("user_coupons")
+}
+
 enum UserRole {
   CUSTOMER
   VENDOR
@@ -178,4 +204,10 @@ enum PaymentStatus {
   COMPLETED
   FAILED
   REFUNDED
+}
+
+enum UserCouponStatus {
+  CLAIMED
+  USED
+  EXPIRED
 }

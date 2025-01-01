@@ -5,6 +5,7 @@ import AppError from "../../errors/AppError";
 import httpStatus from "http-status";
 import { IPaginationOptions } from "../../interfaces/pagination";
 import { paginationHelper } from "../../../helpers/paginationHelper";
+import { IFile } from "../../interfaces/file";
 
 const getAllUsers = async (options: IPaginationOptions) => {
   const { page, limit, skip } = paginationHelper.calculatePagination(options);
@@ -16,6 +17,7 @@ const getAllUsers = async (options: IPaginationOptions) => {
       email: true,
       profileImage: true,
       contactNumber: true,
+      address: true,
       role: true,
       status: true,
       createdAt: true,
@@ -52,6 +54,7 @@ const getUserWithEmail = async (email: string) => {
       email: true,
       profileImage: true,
       contactNumber: true,
+      address: true,
       role: true,
       status: true,
       createdAt: true,
@@ -85,6 +88,7 @@ const getUserWithId = async (id: string) => {
       email: true,
       profileImage: true,
       contactNumber: true,
+      address: true,
       role: true,
       status: true,
       createdAt: true,
@@ -98,7 +102,15 @@ const getUserWithId = async (id: string) => {
   return result;
 };
 
-const updateUser = async (id: string, payload: IUserPayload) => {
+const updateUser = async (
+  id: string,
+  payload: IUserPayload,
+  file: IFile | undefined
+) => {
+  if (file) {
+    payload.profileImage = file.path;
+  }
+
   const result = await prisma.user.update({
     where: {
       id,
@@ -110,6 +122,7 @@ const updateUser = async (id: string, payload: IUserPayload) => {
       email: true,
       profileImage: true,
       contactNumber: true,
+      address: true,
       role: true,
       status: true,
       createdAt: true,
@@ -212,23 +225,26 @@ const followShop = async (user: JwtPayload, shopId: string) => {
   }
 };
 
-const userSubscribe = async(payload: {email: string}) => {
+const userSubscribe = async (payload: { email: string }) => {
   const alreadyUser = await prisma.subscribedUser.findUnique({
     where: {
-      email: payload.email
-    }
+      email: payload.email,
+    },
   });
 
-  if(alreadyUser){
-    throw new AppError(httpStatus.BAD_REQUEST, "Already subscribed previously!!")
-  };
+  if (alreadyUser) {
+    throw new AppError(
+      httpStatus.BAD_REQUEST,
+      "Already subscribed previously!!"
+    );
+  }
 
   const result = await prisma.subscribedUser.create({
-    data: payload
+    data: payload,
   });
 
   return result;
-}
+};
 
 export const UserServices = {
   getAllUsers,
@@ -238,5 +254,5 @@ export const UserServices = {
   deleteUser,
   suspendUser,
   followShop,
-  userSubscribe
+  userSubscribe,
 };

@@ -27,6 +27,7 @@ const getAllUsers = (options) => __awaiter(void 0, void 0, void 0, function* () 
             email: true,
             profileImage: true,
             contactNumber: true,
+            address: true,
             role: true,
             status: true,
             createdAt: true,
@@ -60,6 +61,7 @@ const getUserWithEmail = (email) => __awaiter(void 0, void 0, void 0, function* 
             email: true,
             profileImage: true,
             contactNumber: true,
+            address: true,
             role: true,
             status: true,
             createdAt: true,
@@ -90,6 +92,7 @@ const getUserWithId = (id) => __awaiter(void 0, void 0, void 0, function* () {
             email: true,
             profileImage: true,
             contactNumber: true,
+            address: true,
             role: true,
             status: true,
             createdAt: true,
@@ -101,7 +104,10 @@ const getUserWithId = (id) => __awaiter(void 0, void 0, void 0, function* () {
     });
     return result;
 });
-const updateUser = (id, payload) => __awaiter(void 0, void 0, void 0, function* () {
+const updateUser = (id, payload, file) => __awaiter(void 0, void 0, void 0, function* () {
+    if (file) {
+        payload.profileImage = file.path;
+    }
     const result = yield prisma_1.default.user.update({
         where: {
             id,
@@ -113,6 +119,7 @@ const updateUser = (id, payload) => __awaiter(void 0, void 0, void 0, function* 
             email: true,
             profileImage: true,
             contactNumber: true,
+            address: true,
             role: true,
             status: true,
             createdAt: true,
@@ -204,15 +211,14 @@ const followShop = (user, shopId) => __awaiter(void 0, void 0, void 0, function*
 const userSubscribe = (payload) => __awaiter(void 0, void 0, void 0, function* () {
     const alreadyUser = yield prisma_1.default.subscribedUser.findUnique({
         where: {
-            email: payload.email
-        }
+            email: payload.email,
+        },
     });
     if (alreadyUser) {
         throw new AppError_1.default(http_status_1.default.BAD_REQUEST, "Already subscribed previously!!");
     }
-    ;
     const result = yield prisma_1.default.subscribedUser.create({
-        data: payload
+        data: payload,
     });
     return result;
 });
@@ -224,5 +230,5 @@ exports.UserServices = {
     deleteUser,
     suspendUser,
     followShop,
-    userSubscribe
+    userSubscribe,
 };
