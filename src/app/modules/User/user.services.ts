@@ -246,6 +246,27 @@ const userSubscribe = async (payload: { email: string }) => {
   return result;
 };
 
+const getAllSubscribeUsers = async (options: IPaginationOptions) => {
+  const { page, limit, skip } = paginationHelper.calculatePagination(options);
+
+  const result = await prisma.subscribedUser.findMany({
+    skip,
+    take: limit,
+  });
+
+  const total = await prisma.subscribedUser.count();
+
+  return {
+    meta: {
+      page,
+      limit,
+      total,
+    },
+    data: result,
+  };
+};
+
+
 export const UserServices = {
   getAllUsers,
   getUserWithEmail,
@@ -255,4 +276,5 @@ export const UserServices = {
   suspendUser,
   followShop,
   userSubscribe,
+  getAllSubscribeUsers
 };

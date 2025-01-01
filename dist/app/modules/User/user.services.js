@@ -222,6 +222,22 @@ const userSubscribe = (payload) => __awaiter(void 0, void 0, void 0, function* (
     });
     return result;
 });
+const getAllSubscribeUsers = (options) => __awaiter(void 0, void 0, void 0, function* () {
+    const { page, limit, skip } = paginationHelper_1.paginationHelper.calculatePagination(options);
+    const result = yield prisma_1.default.subscribedUser.findMany({
+        skip,
+        take: limit,
+    });
+    const total = yield prisma_1.default.subscribedUser.count();
+    return {
+        meta: {
+            page,
+            limit,
+            total,
+        },
+        data: result,
+    };
+});
 exports.UserServices = {
     getAllUsers,
     getUserWithEmail,
@@ -231,4 +247,5 @@ exports.UserServices = {
     suspendUser,
     followShop,
     userSubscribe,
+    getAllSubscribeUsers
 };

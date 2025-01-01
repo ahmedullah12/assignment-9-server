@@ -9,7 +9,8 @@ const app: Application = express();
 app.use(cors({
     origin: [
         "http://localhost:3000",
-        "https://shop-sagaa.netlify.app"
+        "https://shop-sagaa.netlify.app",
+        "https://shop-saga.vercel.app"
     ],
     credentials: true,
 }));

@@ -10,6 +10,7 @@ import { parseBody } from "../../middlewares/bodyParser";
 const router = Router();
 
 router.get("/", auth(UserRole.ADMIN), UserController.getAllUsers);
+router.get("/subscribe-users", auth(UserRole.ADMIN), UserController.getAllSubscribeUsers);
 router.get("/user-email", UserController.getUserWithEmail);
 router.post("/subscribe-user", UserController.userSubscribe);
 router.get("/:id", UserController.getUserWithId);

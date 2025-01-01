@@ -14,6 +14,7 @@ const multer_config_1 = require("../../../config/multer.config");
 const bodyParser_1 = require("../../middlewares/bodyParser");
 const router = (0, express_1.Router)();
 router.get("/", (0, auth_1.default)(client_1.UserRole.ADMIN), user_controller_1.UserController.getAllUsers);
+router.get("/subscribe-users", (0, auth_1.default)(client_1.UserRole.ADMIN), user_controller_1.UserController.getAllSubscribeUsers);
 router.get("/user-email", user_controller_1.UserController.getUserWithEmail);
 router.post("/subscribe-user", user_controller_1.UserController.userSubscribe);
 router.get("/:id", user_controller_1.UserController.getUserWithId);

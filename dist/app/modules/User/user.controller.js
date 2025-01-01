@@ -97,6 +97,16 @@ const userSubscribe = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, 
         data: result
     });
 }));
+const getAllSubscribeUsers = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const options = (0, pick_1.default)(req.query, ["limit", "page"]);
+    const result = yield user_services_1.UserServices.getAllSubscribeUsers(options);
+    (0, sendResponse_1.default)(res, {
+        statusCode: http_status_1.default.OK,
+        success: true,
+        message: "Users fetched successfully!!",
+        data: result,
+    });
+}));
 exports.UserController = {
     getAllUsers,
     getUserWithEmail,
@@ -106,4 +116,5 @@ exports.UserController = {
     suspendUser,
     followShop,
     userSubscribe,
+    getAllSubscribeUsers
 };

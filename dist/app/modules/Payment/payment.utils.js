@@ -23,7 +23,7 @@ const initiatePayment = (paymentData) => __awaiter(void 0, void 0, void 0, funct
             tran_id: paymentData.transactionId,
             success_url: `https://assignment-9-server-kappa.vercel.app/api/payment/confirmation?transactionId=${paymentData.transactionId}&paymentId=${paymentData.paymentId}`,
             fail_url: `https://assignment-9-server-kappa.vercel.app/api/payment/confirmation?transactionId=${paymentData.transactionId}&paymentId=${paymentData.paymentId}`,
-            cancel_url: "https://shop-sagaa.netlify.app",
+            cancel_url: "https://shop-saga.vercel.app",
             amount: paymentData.totalAmount,
             currency: 'BDT',
             desc: 'Merchant Registration Payment',

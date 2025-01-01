@@ -13,6 +13,7 @@ const payment_route_1 = require("../modules/Payment/payment.route");
 const payment_collection_route_1 = require("../modules/PaymentsCollection/payment-collection.route");
 const review_route_1 = require("../modules/Review/review.route");
 const coupon_routes_1 = require("../modules/Coupon/coupon.routes");
+const dashboard_overview_route_1 = require("../modules/DashboardOverview/dashboard-overview.route");
 const router = express_1.default.Router();
 const moduleRoutes = [
     {
@@ -50,6 +51,10 @@ const moduleRoutes = [
     {
         path: "/coupon",
         route: coupon_routes_1.CouponRoutes,
+    },
+    {
+        path: "/dashboard-overview",
+        route: dashboard_overview_route_1.DashboardOverviewRoutes,
     },
 ];
 moduleRoutes.forEach((route) => router.use(route.path, route.route));

@@ -101,6 +101,19 @@ const userSubscribe = catchAsync(async (req, res) => {
   });
 });
 
+const getAllSubscribeUsers = catchAsync(async (req, res) => {
+  const options = pick(req.query, ["limit", "page"]);
+
+  const result = await UserServices.getAllSubscribeUsers(options);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Users fetched successfully!!",
+    data: result,
+  });
+});
+
 export const UserController = {
   getAllUsers,
   getUserWithEmail,
@@ -110,4 +123,5 @@ export const UserController = {
   suspendUser,
   followShop,
   userSubscribe,
+  getAllSubscribeUsers
 };
